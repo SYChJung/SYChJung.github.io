@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Water Stress Changes Projection
+		</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<style type="text/css">
+			g{
+				pointer-events: all;
+			}
+			.cool_text_headline{
+				font-size:35px;
+				font-family:verdana;
+				color:#558;
+			}
+			.cool_text_description{
+				font-size:17px;
+				font-family:verdana;
+				alignment-baseline: auto;
+				/*vertical-align: text-bottom;*/
+			}
+			body {
+				margin: 15px;
+				background-color: #F1F3F3;
+			}
+			#water_stress_chart_1,
+			#water_stress_chart_2,
+			#water_stress_chart_3,
+			#water_stress_chart_4{
+				text-align: center;
+			}
+			.bar {
+				-webkit-transition: fill .2s;
+						transition: fill .2s;
+				fill: #5f89ad;
+			}
+			.cool_axis {
+				font-size: 10px;
+			}
+			.cool_axis path,
+			.cool_axis line {
+				fill: none;
+				display: none;
+			}
+			.cool_circle{
+				r: 3;
+			}
+			.label {
+				font-size: 13px;
+			}
+
+			div.tooltip {	
+				-webkit-transition: fill .2s; /* Safari */
+						transition: fill .2s;
+				position: absolute;			
+				/*width: 300px;					*/
+				/*height: 20px;					*/
+				padding: 5px;
+				border: 0px;		
+				border-radius: 3px;			
+				text-align: center;	
+				font: 15px sans-serif;		
+				/*background: lightsteelblue;*/
+				background: #001;
+				color: white;
+				opacity: 0;
+				pointer-events: none;
+			}
+			div.tooltip.selected{
+				-webkit-transition: fill .2s; /* Safari */
+						transition: fill .2s;
+				opacity: 0.9;
+			}
+			.cool_text_description{
+				font-size:15px;
+				font-family:verdana;
+				alignment-baseline: auto;
+				/*vertical-align: text-bottom;*/
+			}
+			.cool_polygon{
+					/*fill:lime;*/
+				stroke:none;
+					/*fill-rule:evenodd;*/
+				opacity: .1;
+			}
+			.cool_polygon.selected{
+				opacity: .5;
+			}			
+		</style>
+	</head>
+	<body>
+		<h1 class="cool_text_headline", align="center">Visualizing Water Stress Change in Each Country</h1>
+		<p class="cool_text_description">
+		WRI (World Resources Institute) created a dataset about future water stress in 167 countries for the years 2020, 2030, and 2040.<!-- Water stress is a measure of water shortage...--> I reorganized the dataset and visualized it to show the water stress changes in various countries.
+		<br>
+		<br> I made four charts according to four different areas that may experience water stress: All sectors, industrial, domestic, and agricultural. For each chart I presented 10 countries: five countries with the greatest business-as-usual water stress increases and five countries with the greatest business-as-usual water stress decreases. Each country has nine dots representing business-as-usual, optimistic, and pessimistic water stress estimations in 2020, 2030, and 2040.
+		<br>
+		<br>If you move your mouse over the box, more information shows up: name of the country, optimistic water stresses in 2020, 2030, and 2040; Business-as-usual water stresses in 2020, 2030, and 2040; pessimistic water stresses in 2020, 2030, and 2040; and water stress change from 2020 to 2040.
+		<br>
+		<br> Data source: <a href="http://www.wri.org/resources/data-sets/aqueduct-projected-water-stress-country-rankings">Aqueduct Projected Water Stress Country Rankings, WRI</a>
+		<br>
+		<br>
+		</p>
+
+		<!-- script for All Sectors -->
+		<div id="water_stress_chart_1"></div>
+		<p class="cool_text_description">
+			&#9650; This is a chart about water stress changes over all sectors including industrial, domestic, and agricultural. The chart shows water stress changes of the Netherlands, Honduras, Albania, Estonia, and Botswana, which have the greatest business-as-usual water stress increases, and Taiwan, Eritrea, Madagascar, Ecuador, and Yemen, which have the greatest business-as-usual water stress decreases.
+		</p>
+		<script type="text/javascript">
+			// 1) data
+			var All_Sectors_BAU_data = [
+				{"Name":"Albania","2020":2.43807,"2030":2.92627,"2040":3.2845799923,"Water Stress Change":0.8465099923},
+				{"Name":"Botswana","2020":1.9743,"2030":2.40258,"2040":2.9980199337,"Water Stress Change":1.0237199337},
+				{"Name":"Ecuador","2020":2.09243,"2030":1.92401,"2040":1.8781299591,"Water Stress Change":-0.2143000409},
+				{"Name":"Eritrea","2020":3.63509,"2030":3.49663,"2040":2.9972200394,"Water Stress Change":-0.6378699606},
+				{"Name":"Estonia","2020":2.96373,"2030":3.45909,"2040":3.9143400192,"Water Stress Change":0.9506100192},
+				{"Name":"Honduras","2020":0.331237,"2030":0.718084,"2040":1.1734499931,"Water Stress Change":0.8422129931},
+				{"Name":"Madagascar","2020":1.15032,"2030":0.939361,"2040":0.8767359853,"Water Stress Change":-0.2735840147},
+				{"Name":"Netherlands","2020":1.83457,"2030":2.2674,"2040":2.6728100777,"Water Stress Change":0.8382400777},
+				{"Name":"Taiwan","2020":1.97233,"2030":1.5411,"2040":1.1363799572,"Water Stress Change":-0.8359500428},
+				{"Name":"Yemen","2020":4.95241,"2030":4.87541,"2040":4.7382798195,"Water Stress Change":-0.2141301805},
+			];
+			var All_Sectors_optimistic_data = [
+				{"Name":"Albania","2020":2.35105,"2030":2.79142,"2040":3.20661,"Water Stress Change":0.85556},
+				{"Name":"Botswana","2020":2.51196,"2030":2.56292,"2040":2.71051,"Water Stress Change":0.19855},
+				{"Name":"Ecuador","2020":2.08521,"2030":1.91465,"2040":1.90397,"Water Stress Change":-0.18124},
+				{"Name":"Eritrea","2020":3.49881,"2030":3.57044,"2040":3.15862,"Water Stress Change":-0.34019},
+				{"Name":"Estonia","2020":2.91312,"2030":3.45996,"2040":3.95221,"Water Stress Change":1.03909},
+				{"Name":"Honduras","2020":0.396001,"2030":0.796738,"2040":1.17501,"Water Stress Change":0.779009},
+				{"Name":"Madagascar","2020":1.04098,"2030":0.871276,"2040":0.932084,"Water Stress Change":-0.108896},
+				{"Name":"Netherlands","2020":1.86244,"2030":2.3086,"2040":2.7668,"Water Stress Change":0.90436},
+				{"Name":"Taiwan","2020":1.90889,"2030":1.45707,"2040":1.07713,"Water Stress Change":-0.83176},
+				{"Name":"Yemen","2020":4.81451,"2030":4.77437,"2040":4.74134,"Water Stress Change":-0.07317},
+			];
+			var All_Sectors_pessimistic_data = [
+				{"Name":"Albania","2020":2.43004,"2030":2.9535,"2040":3.31509,"Water Stress Change":0.88505},
+				{"Name":"Botswana","2020":1.9351,"2030":2.36508,"2040":2.94191,"Water Stress Change":1.00681},
+				{"Name":"Ecuador","2020":2.10517,"2030":1.96723,"2040":1.93823,"Water Stress Change":-0.16694},
+				{"Name":"Eritrea","2020":3.60664,"2030":3.00446,"2040":3.07119,"Water Stress Change":-0.53545},
+				{"Name":"Estonia","2020":2.95585,"2030":3.43723,"2040":3.87631,"Water Stress Change":0.92046},
+				{"Name":"Honduras","2020":0.296113,"2030":0.641671,"2040":1.05115,"Water Stress Change":0.755037},
+				{"Name":"Madagascar","2020":1.15049,"2030":0.995276,"2040":0.964955,"Water Stress Change":-0.185535},
+				{"Name":"Netherlands","2020":1.81436,"2030":2.18824,"2040":2.51172,"Water Stress Change":0.69736},
+				{"Name":"Taiwan","2020":1.93949,"2030":1.42524,"2040":1.05702,"Water Stress Change":-0.88247},
+				{"Name":"Yemen","2020":4.91687,"2030":4.87562,"2040":4.74312,"Water Stress Change":-0.17375},
+			];
+
+			// 2. dimensions
+			var svg_width  = 1200;
+			var svg_height = 300;
+			var margin_left   = 50;
+			var margin_right  = 50;
+			var margin_top    = 25;
+			var margin_bottom = 25;
+			var padding_top    = 5;
+			var padding_bottom = 5;
+			var outer_width  = svg_width - margin_left - margin_right;
+			var outer_height = svg_height - margin_top - margin_bottom;
+			var panel_height = outer_height/2
+			// 
+			var svg = d3.select("#water_stress_chart_1")
+				.append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box = svg
+				.append("g")
+				.attr("transform", "translate(" + margin_left + "," + margin_top + ")")
+			;
+			// 
+			var xScale = d3.scaleLinear()
+				.range([0, outer_width])
+				.domain([0, 5]);
+			// http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d
+			function colors_google(n) {
+				var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
+				return colors[n % colors.length];
+			}
+			// var c10 = d3.scale.category10();
+			// var c20 = d3.scale.category20();
+			// var c20b = d3.scale.category20b();
+			// var c20c = d3.scale.category20c();
+			
+			// 5. axes
+			var xAxis_top = d3.axisTop()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+			var xAxis_middle = d3.axisBottom()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+			var xAxis_bottom = d3.axisBottom()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+
+			var xAxis_top = outer_box.append("g")
+				// .attr("transform", "translate(0,"+margin_top+")")
+				.call(xAxis_top)
+				.attr("class", "cool_axis")
+			;		
+			var waterstress_xAxis_Right = outer_box.append("g")
+				.attr("transform", "translate(0,"+panel_height+")")
+				.call(xAxis_middle)
+				.attr("class", "cool_axis")
+			;
+			var waterstress_xAxis_middle = outer_box.append("g")
+				.attr("transform", "translate(0,"+outer_height+")")
+				.call(xAxis_bottom)
+				.attr("class", "cool_axis")
+			;
+
+			//polygons
+			// All_Sectors_BAU_data
+			// All_Sectors_optimistic_data
+			// All_Sectors_pessimistic_data
+			var polygons_g = outer_box
+				.append("g")
+			;
+			var tooltip_div = d3.select("body").append("div")	
+				.attr("class", "tooltip");
+
+			var polygons = polygons_g
+				.selectAll("polygon").data(All_Sectors_optimistic_data).enter().append("polygon")
+				.attr("class", "cool_polygon")
+				.attr("points", function(d_opti, i){
+					var d_bau = All_Sectors_BAU_data[i];
+					var d_pessi = All_Sectors_pessimistic_data[i];
+
+					var values = [d_opti["2020"], d_bau["2020"], d_pessi["2020"]];
+					var values_min = d3.min(values);
+					var values_max = d3.max(values);
+					var point1 = xScale(values_min)+",0 ";
+					var point2 = xScale(values_max)+",0 ";
+					
+					values = [d_opti["2030"], d_bau["2030"], d_pessi["2030"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point6 = xScale(values_min)+","+panel_height+" ";
+					var point3 = xScale(values_max)+","+panel_height+" ";
+
+					values = [d_opti["2040"], d_bau["2040"], d_pessi["2040"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point5 = xScale(values_min)+","+(panel_height*2)+" ";
+					var point4 = xScale(values_max)+","+(panel_height*2)+" ";
+					
+					return point1+point2+point3+point4+point5+point6;
+				})
+				.attr("fill", function(d,i) { return colors_google(i); } )
+				.on("mouseover", function(d, i){
+					d3.select(this)
+						.classed("selected", true)
+					var d_opti = d3.select(this).data()[0];
+					var d_bau = All_Sectors_BAU_data[i];
+					var d_pessi = All_Sectors_pessimistic_data[i];
+
+					tooltip_div
+						.classed("selected", true)
+						.html(
+								   "<span style='color:gray;font-weight:bold;'>Name:</span> " + d_bau["Name"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2020:</span> " + d_opti["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2020:</span> " + d_bau["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2020:</span> " + d_pessi["2020"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2030:</span> " + d_opti["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2030:</span> " + d_bau["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2030:</span> " + d_pessi["2030"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2040:</span> " + d_opti["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2040:</span> " + d_bau["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2040:</span> " + d_pessi["2040"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Water Stress Change from 2000 to 2040:</span> " + d_pessi["Water Stress Change"]
+							
+						)
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY) + "px");
+				})
+				.on("mouseout", function(d, i){
+					d3.select(this)
+						.classed("selected", false)
+					tooltip_div
+						.classed("selected", false);
+					;
+				})
+			;
+
+
+			// // All_Sectors 2020
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(All_Sectors_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(All_Sectors_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(All_Sectors_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			// // All_Sectors 2030
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(All_Sectors_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(All_Sectors_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(All_Sectors_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;						
+			// // All_Sectors 2040
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(All_Sectors_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(All_Sectors_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(All_Sectors_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+		</script>
+
+		</br>
+		</br>
+
+		<!-- script for Industrial water stress -->
+		<div id="water_stress_chart_2"></div>
+		<p class="cool_text_description">
+			&#9650; This is a chart about industrial water stress changes. The chart shows water stress changes of Algeria, Senegal, Estonia, Sri Lanka, and Botswana, which have the greatest industrial water stress increases, and Taiwan, Eritrea, Libya, Yemen, and the United Kingdom, which have the greatest industrial water stress decreases.
+		</p>
+		<script type="text/javascript">
+			// 1) data
+			var Industrial_BAU_data = [
+				{"Name":"Algeria","2020":3.42523,"2030":3.87736,"2040":4.32415,"Water Stress Change":0.89892},
+				{"Name":"Botswana","2020":2.36039,"2030":2.71477,"2040":3.40796,"Water Stress Change":1.04757},
+				{"Name":"Eritrea","2020":3.63401,"2030":3.54618,"2040":2.8959,"Water Stress Change":-0.73811},
+				{"Name":"Estonia","2020":2.97451,"2030":3.46707,"2040":3.92009,"Water Stress Change":0.94558},
+				{"Name":"Libya","2020":4.87777,"2030":4.52269,"2040":4.60324,"Water Stress Change":-0.27453},
+				{"Name":"Senegal","2020":0.507212,"2030":1.00315,"2040":1.41421,"Water Stress Change":0.906998},
+				{"Name":"Sri Lanka","2020":2.26714,"2030":2.75324,"2040":3.23023,"Water Stress Change":0.96309},
+				{"Name":"Taiwan","2020":1.86607,"2030":1.41284,"2040":0.956115,"Water Stress Change":-0.909955},
+				{"Name":"United Kingdom","2020":2.56923,"2030":2.47899,"2040":2.38164,"Water Stress Change":-0.18759},
+				{"Name":"Yemen","2020":4.86653,"2030":4.77039,"2040":4.65648,"Water Stress Change":-0.21005},
+			];
+			var Industrial_optimistic_data = [
+				{"Name":"Algeria","2020":3.49649,"2030":3.8815,"2040":4.20048,"Water Stress Change":0.70399},
+				{"Name":"Botswana","2020":3.00642,"2030":3.0245,"2040":3.21917,"Water Stress Change":0.21275},
+				{"Name":"Eritrea","2020":3.52472,"2030":3.5931,"2040":3.07258,"Water Stress Change":-0.45214},
+				{"Name":"Estonia","2020":2.92369,"2030":3.46791,"2040":3.95807,"Water Stress Change":1.03438},
+				{"Name":"Libya","2020":4.87816,"2030":4.50803,"2040":4.65687,"Water Stress Change":-0.22129},
+				{"Name":"Senegal","2020":0.642126,"2030":1.08992,"2040":1.52573,"Water Stress Change":0.883604},
+				{"Name":"Sri Lanka","2020":2.32338,"2030":2.75936,"2040":3.25181,"Water Stress Change":0.92843},
+				{"Name":"Taiwan","2020":1.80484,"2030":1.33264,"2040":0.904385,"Water Stress Change":-0.900455},
+				{"Name":"United Kingdom","2020":2.57899,"2030":2.4488,"2040":2.42226,"Water Stress Change":-0.15673},
+				{"Name":"Yemen","2020":4.74411,"2030":4.69908,"2040":4.67458,"Water Stress Change":-0.06953},
+			];
+			var Industrial_pessimistic_data = [
+				{"Name":"Algeria","2020":3.45229,"2030":3.94444,"2040":4.38084,"Water Stress Change":0.92855},
+				{"Name":"Botswana","2020":2.31555,"2030":2.7267,"2040":3.39781,"Water Stress Change":1.08226},
+				{"Name":"Eritrea","2020":3.62988,"2030":2.91372,"2040":2.92227,"Water Stress Change":-0.70761},
+				{"Name":"Estonia","2020":2.96664,"2030":3.44514,"2040":3.88204,"Water Stress Change":0.9154},
+				{"Name":"Libya","2020":4.88141,"2030":4.55622,"2040":4.63688,"Water Stress Change":-0.24453},
+				{"Name":"Senegal","2020":0.513516,"2030":0.988692,"2040":1.38089,"Water Stress Change":0.867374},
+				{"Name":"Sri Lanka","2020":2.26963,"2030":2.71892,"2040":3.10081,"Water Stress Change":0.83118},
+				{"Name":"Taiwan","2020":1.8187,"2030":1.25929,"2040":0.831492,"Water Stress Change":-0.987208},
+				{"Name":"United Kingdom","2020":2.5885,"2030":2.46447,"2040":2.30369,"Water Stress Change":-0.28481},
+				{"Name":"Yemen","2020":4.81143,"2030":4.76312,"2040":4.64808,"Water Stress Change":-0.16335},
+			];
+
+			// 2. dimensions
+			// 
+			var svg = d3.select("#water_stress_chart_2")
+				.append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box = svg
+				.append("g")
+				.attr("transform", "translate(" + margin_left + "," + margin_top + ")")
+			;
+			// 
+			var xScale = d3.scaleLinear()
+				.range([0, outer_width])
+				.domain([0,5]);
+			// http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d
+			function colors_google(n) {
+				var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
+				return colors[n % colors.length];
+			}
+			// var c10 = d3.scale.category10();
+			// var c20 = d3.scale.category20();
+			// var c20b = d3.scale.category20b();
+			// var c20c = d3.scale.category20c();
+			
+			// 5. axes
+			var xAxis_top = d3.axisTop()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+			var xAxis_middle = d3.axisBottom()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+			var xAxis_bottom = d3.axisBottom()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+
+			var xAxis_top = outer_box.append("g")
+				// .attr("transform", "translate(0,"+margin_top+")")
+				.call(xAxis_top)
+				.attr("class", "cool_axis")
+			;		
+			var waterstress_xAxis_Right = outer_box.append("g")
+				.attr("transform", "translate(0,"+panel_height+")")
+				.call(xAxis_middle)
+				.attr("class", "cool_axis")
+			;
+			var waterstress_xAxis_middle = outer_box.append("g")
+				.attr("transform", "translate(0,"+outer_height+")")
+				.call(xAxis_bottom)
+				.attr("class", "cool_axis")
+			;
+
+			//polygons
+			// Industrial_BAU_data
+			// Industrial_optimistic_data
+			// Industrial_pessimistic_data
+			var polygons_g = outer_box
+				.append("g")
+			;
+			var tooltip_div = d3.select("body").append("div")	
+				.attr("class", "tooltip");
+
+			var polygons = polygons_g
+				.selectAll("polygon").data(Industrial_optimistic_data).enter().append("polygon")
+				.attr("class", "cool_polygon")
+				.attr("points", function(d_opti, i){
+					var d_bau = Industrial_BAU_data[i];
+					var d_pessi = Industrial_pessimistic_data[i];
+
+					var values = [d_opti["2020"], d_bau["2020"], d_pessi["2020"]];
+					var values_min = d3.min(values);
+					var values_max = d3.max(values);
+					var point1 = xScale(values_min)+",0 ";
+					var point2 = xScale(values_max)+",0 ";
+					
+					values = [d_opti["2030"], d_bau["2030"], d_pessi["2030"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point6 = xScale(values_min)+","+panel_height+" ";
+					var point3 = xScale(values_max)+","+panel_height+" ";
+
+					values = [d_opti["2040"], d_bau["2040"], d_pessi["2040"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point5 = xScale(values_min)+","+(panel_height*2)+" ";
+					var point4 = xScale(values_max)+","+(panel_height*2)+" ";
+					
+					return point1+point2+point3+point4+point5+point6;
+				})
+				.attr("fill", function(d,i) { return colors_google(i); } )
+				.on("mouseover", function(d, i){
+					d3.select(this)
+						.classed("selected", true)
+					var d_opti = d3.select(this).data()[0];
+					var d_bau = Industrial_BAU_data[i];
+					var d_pessi = Industrial_pessimistic_data[i];
+
+					tooltip_div
+						.classed("selected", true)
+						.html(
+								   "<span style='color:gray;font-weight:bold;'>Name:</span> " + d_bau["Name"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2020:</span> " + d_opti["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2020:</span> " + d_bau["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2020:</span> " + d_pessi["2020"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2030:</span> " + d_opti["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2030:</span> " + d_bau["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2030:</span> " + d_pessi["2030"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2040:</span> " + d_opti["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2040:</span> " + d_bau["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2040:</span> " + d_pessi["2040"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Water Stress Change from 2000 to 2040:</span> " + d_pessi["Water Stress Change"]
+							
+						)
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY) + "px");
+				})
+				.on("mouseout", function(d, i){
+					d3.select(this)
+						.classed("selected", false)
+					tooltip_div
+						.classed("selected", false);							
+					;
+				})
+			;
+
+			// // All_Sectors 2020
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Industrial_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Industrial_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Industrial_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			// // All_Sectors 2030
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Industrial_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Industrial_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Industrial_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;						
+			// // All_Sectors 2040
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Industrial_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Industrial_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Industrial_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+		</script>
+		
+		</br>
+		</br>
+
+		<!-- script for Domestic water stress -->
+		<div id="water_stress_chart_3"></div>
+		<p class="cool_text_description">
+			&#9650; This is a chart about domestic water stress changes. The chart shows water stress changes of Senegal, Algeria, Sri Lanka, Estonia, and Botswana, which have the greatest domestic water stress increases, and Taiwan, Eritrea, Libya, Yemen, and the United Kingdom, which have the greatest domestic water stress decreases.
+		</p>
+		<script>
+			// 1) data
+			var Domestic_BAU_data = [
+				{"Name":"Algeria","2020":3.38676,"2030":3.83982,"2040":4.28712,"Water Stress Change":0.90036},
+				{"Name":"Botswana","2020":2.22563,"2030":2.69931,"2040":3.30289,"Water Stress Change":1.07726},
+				{"Name":"Eritrea","2020":3.59542,"2030":3.53637,"2040":2.88946,"Water Stress Change":-0.70596},
+				{"Name":"Estonia","2020":2.85702,"2030":3.34628,"2040":3.8028,"Water Stress Change":0.94578},
+				{"Name":"Libya","2020":4.85864,"2030":4.5151,"2040":4.5972,"Water Stress Change":-0.26144},
+				{"Name":"Senegal","2020":0.464926,"2030":0.954975,"2040":1.35465,"Water Stress Change":0.889724},
+				{"Name":"Sri Lanka","2020":2.31711,"2030":2.77952,"2040":3.23971,"Water Stress Change":0.9226},
+				{"Name":"Taiwan","2020":1.84119,"2030":1.39776,"2040":0.950572,"Water Stress Change":-0.890618},
+				{"Name":"United Kingdom","2020":2.55552,"2030":2.46771,"2040":2.3724,"Water Stress Change":-0.18312},
+				{"Name":"Yemen","2020":4.86123,"2030":4.75943,"2040":4.62532,"Water Stress Change":-0.23591},
+			];
+			var Domestic_optimistic_data = [
+				{"Name":"Algeria","2020":3.4588,"2030":3.84583,"2040":4.165,"Water Stress Change":0.7062},
+				{"Name":"Botswana","2020":2.81311,"2030":2.80141,"2040":2.93386,"Water Stress Change":0.12075},
+				{"Name":"Eritrea","2020":3.48919,"2030":3.58367,"2040":3.07577,"Water Stress Change":-0.41342},
+				{"Name":"Estonia","2020":2.80478,"2030":3.34518,"2040":3.84012,"Water Stress Change":1.03534},
+				{"Name":"Libya","2020":4.8596,"2030":4.50046,"2040":4.65017,"Water Stress Change":-0.20943},
+				{"Name":"Senegal","2020":0.590783,"2030":1.0356,"2040":1.458,"Water Stress Change":0.867217},
+				{"Name":"Sri Lanka","2020":2.37148,"2030":2.78493,"2040":3.26172,"Water Stress Change":0.89024},
+				{"Name":"Taiwan","2020":1.78036,"2030":1.31864,"2040":0.899467,"Water Stress Change":-0.880893},
+				{"Name":"United Kingdom","2020":2.56521,"2030":2.43755,"2040":2.41286,"Water Stress Change":-0.15235},
+				{"Name":"Yemen","2020":4.71948,"2030":4.66737,"2040":4.64117,"Water Stress Change":-0.07831},
+			];
+			var Domestic_pessimistic_data = [
+				{"Name":"Algeria","2020":3.4588,"2030":3.84583,"2040":4.165,"Water Stress Change":0.7062},
+				{"Name":"Botswana","2020":2.81311,"2030":2.80141,"2040":2.93386,"Water Stress Change":0.12075},
+				{"Name":"Eritrea","2020":3.48919,"2030":3.58367,"2040":3.07577,"Water Stress Change":-0.41342},
+				{"Name":"Estonia","2020":2.80478,"2030":3.34518,"2040":3.84012,"Water Stress Change":1.03534},
+				{"Name":"Libya","2020":4.8596,"2030":4.50046,"2040":4.65017,"Water Stress Change":-0.20943},
+				{"Name":"Senegal","2020":0.590783,"2030":1.0356,"2040":1.458,"Water Stress Change":0.867217},
+				{"Name":"Sri Lanka","2020":2.37148,"2030":2.78493,"2040":3.26172,"Water Stress Change":0.89024},
+				{"Name":"Taiwan","2020":1.78036,"2030":1.31864,"2040":0.899467,"Water Stress Change":-0.880893},
+				{"Name":"United Kingdom","2020":2.56521,"2030":2.43755,"2040":2.41286,"Water Stress Change":-0.15235},
+				{"Name":"Yemen","2020":4.71948,"2030":4.66737,"2040":4.64117,"Water Stress Change":-0.07831},
+			];
+			// 2. dimensions
+			// 
+			var svg = d3.select("#water_stress_chart_3")
+				.append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box = svg
+				.append("g")
+				.attr("transform", "translate(" + margin_left + "," + margin_top + ")")
+			;
+			// 
+			var xScale = d3.scaleLinear()
+				.range([0, outer_width])
+				.domain([
+					d3.min(All_Sectors_optimistic_data, function (d) {
+						return 0;
+					}), 
+					d3.max(All_Sectors_pessimistic_data, function (d) {
+						return 5;
+					})
+				]);
+			// http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d
+			function colors_google(n) {
+				var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
+				return colors[n % colors.length];
+			}
+			// var c10 = d3.scale.category10();
+			// var c20 = d3.scale.category20();
+			// var c20b = d3.scale.category20b();
+			// var c20c = d3.scale.category20c();
+			
+			// 5. axes
+			var xAxis_top = d3.axisTop()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+			var xAxis_middle = d3.axisBottom()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+			var xAxis_bottom = d3.axisBottom()
+				.scale(xScale)
+				//no tick marks
+				// .tickSize(0)
+			;
+
+			var xAxis_top = outer_box.append("g")
+				// .attr("transform", "translate(0,"+margin_top+")")
+				.call(xAxis_top)
+				.attr("class", "cool_axis")
+			;		
+			var waterstress_xAxis_Right = outer_box.append("g")
+				.attr("transform", "translate(0,"+panel_height+")")
+				.call(xAxis_middle)
+				.attr("class", "cool_axis")
+			;
+			var waterstress_xAxis_middle = outer_box.append("g")
+				.attr("transform", "translate(0,"+outer_height+")")
+				.call(xAxis_bottom)
+				.attr("class", "cool_axis")
+			;
+
+			//polygons
+			// Domestic_BAU_data
+			// Domestic_optimistic_data
+			// Domestic_pessimistic_data
+			var polygons_g = outer_box
+				.append("g")
+			;
+			var tooltip_div = d3.select("body").append("div")	
+				.attr("class", "tooltip");
+
+			var polygons = polygons_g
+				.selectAll("polygon").data(Domestic_optimistic_data).enter().append("polygon")
+				.attr("class", "cool_polygon")
+				.attr("points", function(d_opti, i){
+					var d_bau = Domestic_BAU_data[i];
+					var d_pessi = Domestic_pessimistic_data[i];
+
+					var values = [d_opti["2020"], d_bau["2020"], d_pessi["2020"]];
+					var values_min = d3.min(values);
+					var values_max = d3.max(values);
+					var point1 = xScale(values_min)+",0 ";
+					var point2 = xScale(values_max)+",0 ";
+					
+					values = [d_opti["2030"], d_bau["2030"], d_pessi["2030"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point6 = xScale(values_min)+","+panel_height+" ";
+					var point3 = xScale(values_max)+","+panel_height+" ";
+
+					values = [d_opti["2040"], d_bau["2040"], d_pessi["2040"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point5 = xScale(values_min)+","+(panel_height*2)+" ";
+					var point4 = xScale(values_max)+","+(panel_height*2)+" ";
+					
+					return point1+point2+point3+point4+point5+point6;
+				})
+				.attr("fill", function(d,i) { return colors_google(i); } )
+				.on("mouseover", function(d, i){
+					d3.select(this)
+						.classed("selected", true)
+					var d_opti = d3.select(this).data()[0];
+					var d_bau = Domestic_BAU_data[i];
+					var d_pessi = Domestic_pessimistic_data[i];
+
+					tooltip_div
+						.classed("selected", true)
+						.html(
+								   "<span style='color:gray;font-weight:bold;'>Name:</span> " + d_bau["Name"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2020:</span> " + d_opti["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2020:</span> " + d_bau["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2020:</span> " + d_pessi["2020"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2030:</span> " + d_opti["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2030:</span> " + d_bau["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2030:</span> " + d_pessi["2030"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2040:</span> " + d_opti["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2040:</span> " + d_bau["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2040:</span> " + d_pessi["2040"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Water Stress Change from 2000 to 2040:</span> " + d_pessi["Water Stress Change"]
+							
+						)
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY) + "px");
+				})
+				.on("mouseout", function(d, i){
+					d3.select(this)
+						.classed("selected", false)
+					tooltip_div
+						.classed("selected", false);							
+					;
+				})
+			;					
+
+			// // All_Sectors 2020
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Domestic_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Domestic_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Domestic_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			// // All_Sectors 2030
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Domestic_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Domestic_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Domestic_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;						
+			// // All_Sectors 2040
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Domestic_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Domestic_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Domestic_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;			
+		</script>
+		
+		</br>
+		</br>
+
+		<!-- 4. script for Agricultural water stress -->
+		<div id="water_stress_chart_4"></div>
+		<p class="cool_text_description">
+			&#9650; This is a chart about agricultural water stress changes. The chart shows water stress changes of the Netherlands, Chile, Albania, Honduras, and Guatemala, which have the greatest agricultural water stress increases, and Taiwan, Eritrea, Bulgaria, and Madagascar, which have the greatest agricultural water stress decreases.
+		</p>
+		<script>
+			// 1) data
+			var Agricultural_BAU_data = [
+				{"Name":"Albania","2020":2.32301,"2030":2.84478,"2040":3.21503,"Water Stress Change":0.89202},
+				{"Name":"Bulgaria","2020":3.045,"2030":2.86065,"2040":2.68988,"Water Stress Change":-0.35512},
+				{"Name":"Chile","2020":3.56959,"2030":4.01705,"2040":4.4105,"Water Stress Change":0.84091},
+				{"Name":"Ecuador","2020":2.27043,"2030":2.09065,"2040":2.03589,"Water Stress Change":-0.23454},
+				{"Name":"Eritrea","2020":3.64655,"2030":3.47861,"2040":3.05357,"Water Stress Change":-0.59298},
+				{"Name":"Guatemala","2020":0.718591,"2030":1.13432,"2040":1.67642,"Water Stress Change":0.957829},
+				{"Name":"Honduras","2020":0.432639,"2030":0.86012,"2040":1.33305,"Water Stress Change":0.900411},
+				{"Name":"Madagascar","2020":1.17041,"2030":0.971029,"2040":0.922505,"Water Stress Change":-0.247905},
+				{"Name":"Netherlands","2020":1.9172,"2030":2.34517,"2040":2.75123,"Water Stress Change":0.83403},
+				{"Name":"Taiwan","2020":2.41224,"2030":1.9757,"2040":1.59975,"Water Stress Change":-0.81249},
+			];
+			var Agricultural_optimistic_data = [
+				{"Name":"Albania","2020":2.23633,"2030":2.70651,"2040":3.12837,"Water Stress Change":0.89204},
+				{"Name":"Bulgaria","2020":3.00465,"2030":2.72673,"2040":2.56344,"Water Stress Change":-0.44121},
+				{"Name":"Chile","2020":3.5994,"2030":3.97093,"2040":4.2317,"Water Stress Change":0.6323},
+				{"Name":"Ecuador","2020":2.26611,"2030":2.08568,"2040":2.07458,"Water Stress Change":-0.19153},
+				{"Name":"Eritrea","2020":3.50068,"2030":3.56413,"2040":3.20265,"Water Stress Change":-0.29803},
+				{"Name":"Guatemala","2020":0.760564,"2030":1.21976,"2040":1.72298,"Water Stress Change":0.962416},
+				{"Name":"Honduras","2020":0.49922,"2030":0.948439,"2040":1.33563,"Water Stress Change":0.83641},
+				{"Name":"Madagascar","2020":1.06003,"2030":0.901686,"2040":0.979012,"Water Stress Change":-0.081018},
+				{"Name":"Netherlands","2020":1.95018,"2030":2.38857,"2040":2.8414,"Water Stress Change":0.89122},
+				{"Name":"Taiwan","2020":2.34365,"2030":1.87948,"2040":1.52563,"Water Stress Change":-0.81802},
+			];
+			var Agricultural_pessimistic_data = [
+				{"Name":"Albania","2020":2.32802,"2030":2.89072,"2040":3.26369,"Water Stress Change":0.93567},
+				{"Name":"Bulgaria","2020":2.9971,"2030":2.76871,"2040":2.65563,"Water Stress Change":-0.34147},
+				{"Name":"Chile","2020":3.62242,"2030":4.14621,"2040":4.536,"Water Stress Change":0.91358},
+				{"Name":"Ecuador","2020":2.28529,"2030":2.13538,"2040":2.09893,"Water Stress Change":-0.18636},
+				{"Name":"Eritrea","2020":3.61271,"2030":3.03138,"2040":3.11181,"Water Stress Change":-0.5009},
+				{"Name":"Guatemala","2020":0.697087,"2030":1.06476,"2040":1.57331,"Water Stress Change":0.876223},
+				{"Name":"Honduras","2020":0.39634,"2030":0.788062,"2040":1.21476,"Water Stress Change":0.81842},
+				{"Name":"Madagascar","2020":1.16817,"2030":1.02036,"2040":0.998397,"Water Stress Change":-0.169773},
+				{"Name":"Netherlands","2020":1.89785,"2030":2.26808,"2040":2.59399,"Water Stress Change":0.69614},
+				{"Name":"Taiwan","2020":2.37912,"2030":1.84332,"2040":1.42173,"Water Stress Change":-0.95739},
+			];
+			// 2. dimensions
+			// 
+			var svg = d3.select("#water_stress_chart_4")
+				.append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box = svg
+				.append("g")
+				.attr("transform", "translate(" + margin_left + "," + margin_top + ")")
+			;
+			// 
+			var xScale = d3.scaleLinear()
+				.range([0, outer_width])
+				.domain([
+					d3.min(All_Sectors_optimistic_data, function (d) {
+						return 0;
+					}), 
+					d3.max(All_Sectors_pessimistic_data, function (d) {
+						return 5;
+					})
+				]);
+			// http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d
+			function colors_google(n) {
+				var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
+				return colors[n % colors.length];
+			}
+			
+			// 5. axes
+			var xAxis_top = d3.axisTop()
+				.scale(xScale)
+			;
+			var xAxis_middle = d3.axisBottom()
+				.scale(xScale)
+			;
+			var xAxis_bottom = d3.axisBottom()
+				.scale(xScale)
+			;
+
+			var xAxis_top = outer_box.append("g")
+				.call(xAxis_top)
+				.attr("class", "cool_axis")
+			;		
+			var waterstress_xAxis_Right = outer_box.append("g")
+				.attr("transform", "translate(0,"+panel_height+")")
+				.call(xAxis_middle)
+				.attr("class", "cool_axis")
+			;
+			var waterstress_xAxis_middle = outer_box.append("g")
+				.attr("transform", "translate(0,"+outer_height+")")
+				.call(xAxis_bottom)
+				.attr("class", "cool_axis")
+			;
+
+			//polygons
+			// Agricultural_BAU_data
+			// Agricultural_optimistic_data
+			// Agricultural_pessimistic_data
+			var polygons_g = outer_box
+				.append("g")
+			;
+			var tooltip_div = d3.select("body").append("div")	
+				.attr("class", "tooltip");
+
+			var polygons = polygons_g
+				.selectAll("polygon").data(Agricultural_optimistic_data).enter().append("polygon")
+				.attr("class", "cool_polygon")
+				.attr("points", function(d_opti, i){
+					var d_bau = Agricultural_BAU_data[i];
+					var d_pessi = Agricultural_pessimistic_data[i];
+
+					var values = [d_opti["2020"], d_bau["2020"], d_pessi["2020"]];
+					var values_min = d3.min(values);
+					var values_max = d3.max(values);
+					var point1 = xScale(values_min)+",0 ";
+					var point2 = xScale(values_max)+",0 ";
+					
+					values = [d_opti["2030"], d_bau["2030"], d_pessi["2030"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point6 = xScale(values_min)+","+panel_height+" ";
+					var point3 = xScale(values_max)+","+panel_height+" ";
+
+					values = [d_opti["2040"], d_bau["2040"], d_pessi["2040"]];
+					values_min = d3.min(values);
+					values_max = d3.max(values);
+					var point5 = xScale(values_min)+","+(panel_height*2)+" ";
+					var point4 = xScale(values_max)+","+(panel_height*2)+" ";
+					
+					return point1+point2+point3+point4+point5+point6;
+				})
+				.attr("fill", function(d,i) { return colors_google(i); } )
+				.on("mouseover", function(d, i){
+					d3.select(this)
+						.classed("selected", true)
+					var d_opti = d3.select(this).data()[0];
+					var d_bau = Agricultural_BAU_data[i];
+					var d_pessi = Agricultural_pessimistic_data[i];
+
+					tooltip_div
+						.classed("selected", true)
+						.html(
+								   "<span style='color:gray;font-weight:bold;'>Name:</span> " + d_bau["Name"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2020:</span> " + d_opti["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2020:</span> " + d_bau["2020"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2020:</span> " + d_pessi["2020"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2030:</span> " + d_opti["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2030:</span> " + d_bau["2030"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2030:</span> " + d_pessi["2030"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Optimistic Water stress in 2040:</span> " + d_opti["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>BAU Water stress in 2040:</span> " + d_bau["2040"]
+							+ "<br/><span style='color:gray;font-weight:bold;'>Pessimistic Water stress in 2040:</span> " + d_pessi["2040"]
+							+ "<br/>"
+							+ "<br/><span style='color:gray;font-weight:bold;'>Water Stress Change from 2000 to 2040:</span> " + d_pessi["Water Stress Change"]
+							
+						)
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY) + "px");
+				})
+				.on("mouseout", function(d, i){
+					d3.select(this)
+						.classed("selected", false)
+					tooltip_div
+						.classed("selected", false);							
+					;
+				})
+			;
+
+			// // All_Sectors 2020
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Agricultural_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Agricultural_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Agricultural_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2020"]);
+				})
+				.attr("cy", 0)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			// // All_Sectors 2030
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Agricultural_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;				
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Agricultural_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Agricultural_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2030"]);
+				})
+				.attr("cy", panel_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;						
+			// // All_Sectors 2040
+			var circles_pessimistic_g = outer_box
+				.append("g")
+			;
+			var circles_pessimistic = circles_pessimistic_g
+				.selectAll("circle").data(Agricultural_pessimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d){
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_BAU_g = outer_box
+				.append("g")
+			;
+			var circles_BAU = circles_BAU_g
+				.selectAll("circle").data(Agricultural_BAU_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function (d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;
+			var circles_optimistic_g = outer_box
+				.append("g")
+			;
+			var circles_optimistic = circles_optimistic_g
+				.selectAll("circle").data(Agricultural_optimistic_data).enter().append("circle")
+				.attr("class", "cool_circle")
+				.attr("cx", function(d) {
+						return xScale(d["2040"]);
+				})
+				.attr("cy", outer_height)
+				.attr("fill", function(d,i) { return colors_google(i); } );
+			;			
+		</script>
+		<br>
+		<br>
+
+	</body>
+</html>
+
