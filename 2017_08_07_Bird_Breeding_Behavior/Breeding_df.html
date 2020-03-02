@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Bird Breeding Behavior
+		</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<style type="text/css">
+			g{
+				pointer-events: all;
+			}
+			.cool_text_headline{
+				font-size:35px;
+				font-family:verdana;
+				color:#558;
+			}
+			.cool_circle{
+				/*r: 5;*/
+				opacity: .4;
+				fill:#37c;
+			}
+			.cool_axis_x {
+				font-size: 15px;			
+			}
+			/*.cool_axis_x path{
+				stroke:none;
+			}*/
+			.cool_axis_y {
+				font-size: 15px;
+			}
+			/*.cool_axis_y path{
+				stroke:none;
+			}*/
+			div.tooltip {	
+				-webkit-transition: fill .2s; /* Safari */
+						transition: fill .2s;
+				position: absolute;			
+				/*width: 300px;					*/
+				/*height: 20px;					*/
+				padding: 5px;
+				border: 0px;		
+				border-radius: 3px;			
+				text-align: center;	
+				font: 15px sans-serif;		
+				/*background: lightsteelblue;*/
+				background: #001;
+				color: white;
+				opacity: 0;
+				pointer-events: none;
+			}
+			div.tooltip.selected{
+				-webkit-transition: fill .2s; /* Safari */
+						transition: fill .2s;
+				opacity: 0.9;
+			}
+			.selected{
+				opacity: .6;
+				fill:turquoise;/*#fd3;*//*blue;*/
+			}
+			.cool_text_description{
+				font-size:15px;
+				font-family:verdana;
+				alignment-baseline: auto;
+				/*vertical-align: text-bottom;*/
+			}			
+		</style>
+	</head>
+	<body>
+		<h1 class="cool_text_headline", align="center">Bird Breeding Behavior</h1>
+		<p class="cool_text_description">
+			This is a graph showing the number of birds according to their breeding behavior and species. The size of each circle represents the number of birds in each category.
+			<br>
+			<br>New York State’s breeding bird atlases record bird sightings in the state from 1980 to 1985 and from 2000 to 2005. Each record contains information about the location where the bird was sighted, the observer, the year of observation, etc. Among these, the information about the breeding behaviors and the kinds of birds interested me most.
+			<br>
+			<br><!--I organized the Breeding Bird Atlases dataset into a dataframe of breeding behaviors by each kind of bird. With this I used D3.js to make a graph showing the number of birds for each category. The numbers of birds is represented by the radii of the circles.
+			<br>
+			<br-->If you move your cursor over the circle, you can see more information: number of birds, kind of bird, bird breeding behavior.
+			<br>
+			<br> Data source: <a href="https://catalog.data.gov/dataset/breeding-bird-atlases">Breeding Bird Atlases</a>
+		</p>		
+		<div id="Bird_Breeding_Behavior"></div>
+		<script type="text/javascript">
+			// 1. Data
+			var Bird_Breeding_Behavior_data = [
+				{"Common Name":"American Goldfinch","Adult carrying fecal sac":9,"Adult(s) with food for young or feeding young":683,"Adults(s) entering or leaving nest site indicating occupied nest":74,"Bird (or pair) apparently holding teritory":941,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":583,"Distraction display or injury-feigning":31,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":262,"Nest building or excavation of a nest hole":379,"Nest with young":190,"Pair observed in suitable habitat in breeding season":4173,"Recently fledged young":906,"Singing male present on more than one date in the same place":1294,"Used nest found":91,"Visiting probable nest site":68},
+				{"Common Name":"American Redstart","Adult carrying fecal sac":5,"Adult(s) with food for young or feeding young":1608,"Adults(s) entering or leaving nest site indicating occupied nest":32,"Bird (or pair) apparently holding teritory":1300,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":363,"Distraction display or injury-feigning":182,"Female with egg in the oviduct":3,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":132,"Nest building or excavation of a nest hole":51,"Nest with young":112,"Pair observed in suitable habitat in breeding season":827,"Recently fledged young":954,"Singing male present on more than one date in the same place":1632,"Used nest found":13,"Visiting probable nest site":30},
+				{"Common Name":"Black-billed Cuckoo","Adult carrying fecal sac":1,"Adult(s) with food for young or feeding young":285,"Adults(s) entering or leaving nest site indicating occupied nest":5,"Bird (or pair) apparently holding teritory":397,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":70,"Distraction display or injury-feigning":7,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":47,"Nest building or excavation of a nest hole":12,"Nest with young":35,"Pair observed in suitable habitat in breeding season":159,"Recently fledged young":90,"Singing male present on more than one date in the same place":871,"Used nest found":3,"Visiting probable nest site":9},
+				{"Common Name":"Black-capped Chickadee","Adult carrying fecal sac":31,"Adult(s) with food for young or feeding young":2693,"Adults(s) entering or leaving nest site indicating occupied nest":496,"Bird (or pair) apparently holding teritory":740,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":271,"Distraction display or injury-feigning":47,"Female with egg in the oviduct":3,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":156,"Nest building or excavation of a nest hole":130,"Nest with young":488,"Pair observed in suitable habitat in breeding season":930,"Recently fledged young":3352,"Singing male present on more than one date in the same place":1150,"Used nest found":14,"Visiting probable nest site":111},
+				{"Common Name":"Black-throated Blue Warbler","Adult carrying fecal sac":3,"Adult(s) with food for young or feeding young":484,"Adults(s) entering or leaving nest site indicating occupied nest":7,"Bird (or pair) apparently holding teritory":576,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":139,"Distraction display or injury-feigning":78,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":17,"Nest building or excavation of a nest hole":5,"Nest with young":15,"Pair observed in suitable habitat in breeding season":174,"Recently fledged young":155,"Singing male present on more than one date in the same place":830,"Used nest found":3,"Visiting probable nest site":7},
+				{"Common Name":"Blue-gray Gnatcatcher","Adult carrying fecal sac":3,"Adult(s) with food for young or feeding young":248,"Adults(s) entering or leaving nest site indicating occupied nest":29,"Bird (or pair) apparently holding teritory":133,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":65,"Distraction display or injury-feigning":8,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":89,"Nest building or excavation of a nest hole":47,"Nest with young":63,"Pair observed in suitable habitat in breeding season":197,"Recently fledged young":192,"Singing male present on more than one date in the same place":239,"Used nest found":5,"Visiting probable nest site":15},
+				{"Common Name":"Brown Creeper","Adult carrying fecal sac":3,"Adult(s) with food for young or feeding young":314,"Adults(s) entering or leaving nest site indicating occupied nest":63,"Bird (or pair) apparently holding teritory":357,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":53,"Distraction display or injury-feigning":21,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":16,"Nest building or excavation of a nest hole":36,"Nest with young":35,"Pair observed in suitable habitat in breeding season":281,"Recently fledged young":208,"Singing male present on more than one date in the same place":666,"Used nest found":11,"Visiting probable nest site":25},
+				{"Common Name":"Chestnut-sided Warbler","Adult carrying fecal sac":5,"Adult(s) with food for young or feeding young":1609,"Adults(s) entering or leaving nest site indicating occupied nest":25,"Bird (or pair) apparently holding teritory":1231,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":261,"Distraction display or injury-feigning":83,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":75,"Nest building or excavation of a nest hole":27,"Nest with young":50,"Pair observed in suitable habitat in breeding season":371,"Recently fledged young":621,"Singing male present on more than one date in the same place":1720,"Used nest found":8,"Visiting probable nest site":21},
+				{"Common Name":"Common Grackle","Adult carrying fecal sac":182,"Adult(s) with food for young or feeding young":4014,"Adults(s) entering or leaving nest site indicating occupied nest":97,"Bird (or pair) apparently holding teritory":367,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":187,"Distraction display or injury-feigning":26,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":262,"Nest building or excavation of a nest hole":68,"Nest with young":460,"Pair observed in suitable habitat in breeding season":884,"Recently fledged young":2716,"Singing male present on more than one date in the same place":282,"Used nest found":18,"Visiting probable nest site":75},
+				{"Common Name":"Common Yellowthroat","Adult carrying fecal sac":44,"Adult(s) with food for young or feeding young":3599,"Adults(s) entering or leaving nest site indicating occupied nest":128,"Bird (or pair) apparently holding teritory":1404,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":810,"Distraction display or injury-feigning":662,"Female with egg in the oviduct":3,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":179,"Nest building or excavation of a nest hole":38,"Nest with young":174,"Pair observed in suitable habitat in breeding season":785,"Recently fledged young":1295,"Singing male present on more than one date in the same place":1968,"Used nest found":8,"Visiting probable nest site":85},
+				{"Common Name":"Eastern Bluebird","Adult carrying fecal sac":15,"Adult(s) with food for young or feeding young":783,"Adults(s) entering or leaving nest site indicating occupied nest":1044,"Bird (or pair) apparently holding teritory":186,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":22,"Distraction display or injury-feigning":3,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":349,"Nest building or excavation of a nest hole":42,"Nest with young":1094,"Pair observed in suitable habitat in breeding season":804,"Recently fledged young":1265,"Singing male present on more than one date in the same place":219,"Used nest found":40,"Visiting probable nest site":196},
+				{"Common Name":"Eastern Towhee","Adult carrying fecal sac":10,"Adult(s) with food for young or feeding young":691,"Adults(s) entering or leaving nest site indicating occupied nest":33,"Bird (or pair) apparently holding teritory":1210,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":261,"Distraction display or injury-feigning":129,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":85,"Nest building or excavation of a nest hole":11,"Nest with young":63,"Pair observed in suitable habitat in breeding season":564,"Recently fledged young":819,"Singing male present on more than one date in the same place":1780,"Used nest found":1,"Visiting probable nest site":30},
+				{"Common Name":"European Starling","Adult carrying fecal sac":94,"Adult(s) with food for young or feeding young":3297,"Adults(s) entering or leaving nest site indicating occupied nest":936,"Bird (or pair) apparently holding teritory":109,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":23,"Distraction display or injury-feigning":1,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":180,"Nest building or excavation of a nest hole":85,"Nest with young":1255,"Pair observed in suitable habitat in breeding season":273,"Recently fledged young":3205,"Singing male present on more than one date in the same place":150,"Used nest found":7,"Visiting probable nest site":110},
+				{"Common Name":"Field Sparrow","Adult carrying fecal sac":9,"Adult(s) with food for young or feeding young":1121,"Adults(s) entering or leaving nest site indicating occupied nest":35,"Bird (or pair) apparently holding teritory":1065,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":211,"Distraction display or injury-feigning":66,"Female with egg in the oviduct":3,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":153,"Nest building or excavation of a nest hole":23,"Nest with young":129,"Pair observed in suitable habitat in breeding season":250,"Recently fledged young":808,"Singing male present on more than one date in the same place":1912,"Used nest found":6,"Visiting probable nest site":36},
+				{"Common Name":"Gray Catbird","Adult carrying fecal sac":70,"Adult(s) with food for young or feeding young":3740,"Adults(s) entering or leaving nest site indicating occupied nest":156,"Bird (or pair) apparently holding teritory":991,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":519,"Distraction display or injury-feigning":222,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":449,"Nest building or excavation of a nest hole":80,"Nest with young":434,"Pair observed in suitable habitat in breeding season":736,"Recently fledged young":1371,"Singing male present on more than one date in the same place":1238,"Used nest found":46,"Visiting probable nest site":99},
+				{"Common Name":"Great Crested Flycatcher","Adult carrying fecal sac":11,"Adult(s) with food for young or feeding young":729,"Adults(s) entering or leaving nest site indicating occupied nest":290,"Bird (or pair) apparently holding teritory":1291,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":241,"Distraction display or injury-feigning":19,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":35,"Nest building or excavation of a nest hole":64,"Nest with young":106,"Pair observed in suitable habitat in breeding season":625,"Recently fledged young":533,"Singing male present on more than one date in the same place":2152,"Used nest found":2,"Visiting probable nest site":63},
+				{"Common Name":"Hairy Woodpecker","Adult carrying fecal sac":2,"Adult(s) with food for young or feeding young":875,"Adults(s) entering or leaving nest site indicating occupied nest":314,"Bird (or pair) apparently holding teritory":528,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":295,"Distraction display or injury-feigning":24,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":10,"Nest building or excavation of a nest hole":41,"Nest with young":362,"Pair observed in suitable habitat in breeding season":964,"Recently fledged young":1380,"Singing male present on more than one date in the same place":433,"Used nest found":2,"Visiting probable nest site":79},
+				{"Common Name":"Least Flycatcher","Adult carrying fecal sac":4,"Adult(s) with food for young or feeding young":482,"Adults(s) entering or leaving nest site indicating occupied nest":15,"Bird (or pair) apparently holding teritory":1444,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":125,"Distraction display or injury-feigning":22,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":103,"Nest building or excavation of a nest hole":29,"Nest with young":65,"Pair observed in suitable habitat in breeding season":215,"Recently fledged young":284,"Singing male present on more than one date in the same place":1996,"Used nest found":5,"Visiting probable nest site":17},
+				{"Common Name":"Magnolia Warbler","Adult carrying fecal sac":2,"Adult(s) with food for young or feeding young":524,"Adults(s) entering or leaving nest site indicating occupied nest":2,"Bird (or pair) apparently holding teritory":633,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":135,"Distraction display or injury-feigning":47,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":19,"Nest building or excavation of a nest hole":8,"Nest with young":10,"Pair observed in suitable habitat in breeding season":159,"Recently fledged young":224,"Singing male present on more than one date in the same place":766,"Used nest found":3,"Visiting probable nest site":4},
+				{"Common Name":"Mourning Dove","Adult carrying fecal sac":8,"Adult(s) with food for young or feeding young":309,"Adults(s) entering or leaving nest site indicating occupied nest":203,"Bird (or pair) apparently holding teritory":561,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":433,"Distraction display or injury-feigning":19,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":738,"Nest building or excavation of a nest hole":158,"Nest with young":417,"Pair observed in suitable habitat in breeding season":2126,"Recently fledged young":2911,"Singing male present on more than one date in the same place":875,"Used nest found":52,"Visiting probable nest site":51},
+				{"Common Name":"Northern Cardinal","Adult carrying fecal sac":10,"Adult(s) with food for young or feeding young":1289,"Adults(s) entering or leaving nest site indicating occupied nest":72,"Bird (or pair) apparently holding teritory":900,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":236,"Distraction display or injury-feigning":46,"Female with egg in the oviduct":3,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":236,"Nest building or excavation of a nest hole":42,"Nest with young":326,"Pair observed in suitable habitat in breeding season":1218,"Recently fledged young":1621,"Singing male present on more than one date in the same place":1393,"Used nest found":20,"Visiting probable nest site":49},
+				{"Common Name":"Northern Flicker","Adult carrying fecal sac":51,"Adult(s) with food for young or feeding young":824,"Adults(s) entering or leaving nest site indicating occupied nest":1135,"Bird (or pair) apparently holding teritory":872,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":298,"Distraction display or injury-feigning":15,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":64,"Nest building or excavation of a nest hole":69,"Nest with young":350,"Pair observed in suitable habitat in breeding season":1023,"Recently fledged young":1887,"Singing male present on more than one date in the same place":1125,"Used nest found":13,"Visiting probable nest site":155},
+				{"Common Name":"Northern Waterthrush","Adult carrying fecal sac":1,"Adult(s) with food for young or feeding young":166,"Adults(s) entering or leaving nest site indicating occupied nest":1,"Bird (or pair) apparently holding teritory":345,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":126,"Distraction display or injury-feigning":41,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":11,"Nest building or excavation of a nest hole":5,"Nest with young":11,"Pair observed in suitable habitat in breeding season":66,"Recently fledged young":81,"Singing male present on more than one date in the same place":507,"Used nest found":3,"Visiting probable nest site":3},
+				{"Common Name":"Red-eyed Vireo","Adult carrying fecal sac":10,"Adult(s) with food for young or feeding young":1981,"Adults(s) entering or leaving nest site indicating occupied nest":52,"Bird (or pair) apparently holding teritory":2191,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":465,"Distraction display or injury-feigning":88,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":262,"Nest building or excavation of a nest hole":109,"Nest with young":173,"Pair observed in suitable habitat in breeding season":549,"Recently fledged young":785,"Singing male present on more than one date in the same place":3112,"Used nest found":80,"Visiting probable nest site":33},
+				{"Common Name":"Red-winged Blackbird","Adult carrying fecal sac":138,"Adult(s) with food for young or feeding young":3828,"Adults(s) entering or leaving nest site indicating occupied nest":300,"Bird (or pair) apparently holding teritory":1152,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":568,"Distraction display or injury-feigning":356,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":621,"Nest building or excavation of a nest hole":99,"Nest with young":593,"Pair observed in suitable habitat in breeding season":981,"Recently fledged young":2016,"Singing male present on more than one date in the same place":545,"Used nest found":75,"Visiting probable nest site":167},
+				{"Common Name":"Rose-breasted Grosbeak","Adult carrying fecal sac":15,"Adult(s) with food for young or feeding young":1307,"Adults(s) entering or leaving nest site indicating occupied nest":37,"Bird (or pair) apparently holding teritory":985,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":293,"Distraction display or injury-feigning":48,"Female with egg in the oviduct":3,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":135,"Nest building or excavation of a nest hole":81,"Nest with young":101,"Pair observed in suitable habitat in breeding season":1125,"Recently fledged young":1565,"Singing male present on more than one date in the same place":1721,"Used nest found":9,"Visiting probable nest site":23},
+				{"Common Name":"Scarlet Tanager","Adult carrying fecal sac":13,"Adult(s) with food for young or feeding young":880,"Adults(s) entering or leaving nest site indicating occupied nest":21,"Bird (or pair) apparently holding teritory":1395,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":273,"Distraction display or injury-feigning":36,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":93,"Nest building or excavation of a nest hole":33,"Nest with young":39,"Pair observed in suitable habitat in breeding season":820,"Recently fledged young":451,"Singing male present on more than one date in the same place":2387,"Used nest found":21,"Visiting probable nest site":22},
+				{"Common Name":"Song Sparrow","Adult carrying fecal sac":53,"Adult(s) with food for young or feeding young":4232,"Adults(s) entering or leaving nest site indicating occupied nest":138,"Bird (or pair) apparently holding teritory":1022,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":546,"Distraction display or injury-feigning":405,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":442,"Nest building or excavation of a nest hole":52,"Nest with young":450,"Pair observed in suitable habitat in breeding season":452,"Recently fledged young":2014,"Singing male present on more than one date in the same place":1588,"Used nest found":15,"Visiting probable nest site":92},
+				{"Common Name":"Swamp Sparrow","Adult carrying fecal sac":14,"Adult(s) with food for young or feeding young":800,"Adults(s) entering or leaving nest site indicating occupied nest":31,"Bird (or pair) apparently holding teritory":1147,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":236,"Distraction display or injury-feigning":146,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":37,"Nest building or excavation of a nest hole":20,"Nest with young":38,"Pair observed in suitable habitat in breeding season":185,"Recently fledged young":465,"Singing male present on more than one date in the same place":1343,"Used nest found":5,"Visiting probable nest site":39},
+				{"Common Name":"Tufted Titmouse","Adult carrying fecal sac":8,"Adult(s) with food for young or feeding young":861,"Adults(s) entering or leaving nest site indicating occupied nest":40,"Bird (or pair) apparently holding teritory":510,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":119,"Distraction display or injury-feigning":15,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":15,"Nest building or excavation of a nest hole":25,"Nest with young":79,"Pair observed in suitable habitat in breeding season":394,"Recently fledged young":1079,"Singing male present on more than one date in the same place":927,"Used nest found":1,"Visiting probable nest site":31},
+				{"Common Name":"Warbling Vireo","Adult carrying fecal sac":6,"Adult(s) with food for young or feeding young":623,"Adults(s) entering or leaving nest site indicating occupied nest":51,"Bird (or pair) apparently holding teritory":1234,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":181,"Distraction display or injury-feigning":41,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":128,"Nest building or excavation of a nest hole":45,"Nest with young":72,"Pair observed in suitable habitat in breeding season":260,"Recently fledged young":306,"Singing male present on more than one date in the same place":2083,"Used nest found":10,"Visiting probable nest site":19},
+				{"Common Name":"White-breasted Nuthatch","Adult carrying fecal sac":9,"Adult(s) with food for young or feeding young":1099,"Adults(s) entering or leaving nest site indicating occupied nest":261,"Bird (or pair) apparently holding teritory":755,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":199,"Distraction display or injury-feigning":17,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":30,"Nest building or excavation of a nest hole":37,"Nest with young":105,"Pair observed in suitable habitat in breeding season":1036,"Recently fledged young":1647,"Singing male present on more than one date in the same place":1164,"Used nest found":3,"Visiting probable nest site":78},
+				{"Common Name":"Willow Flycatcher","Adult carrying fecal sac":4,"Adult(s) with food for young or feeding young":385,"Adults(s) entering or leaving nest site indicating occupied nest":31,"Bird (or pair) apparently holding teritory":974,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":71,"Distraction display or injury-feigning":13,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":51,"Nest building or excavation of a nest hole":13,"Nest with young":29,"Pair observed in suitable habitat in breeding season":146,"Recently fledged young":153,"Singing male present on more than one date in the same place":1360,"Used nest found":2,"Visiting probable nest site":20},
+				{"Common Name":"Yellow Warbler","Adult carrying fecal sac":27,"Adult(s) with food for young or feeding young":3003,"Adults(s) entering or leaving nest site indicating occupied nest":100,"Bird (or pair) apparently holding teritory":1227,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":373,"Distraction display or injury-feigning":134,"Female with egg in the oviduct":1,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":387,"Nest building or excavation of a nest hole":75,"Nest with young":321,"Pair observed in suitable habitat in breeding season":798,"Recently fledged young":1202,"Singing male present on more than one date in the same place":1492,"Used nest found":42,"Visiting probable nest site":71},
+				{"Common Name":"Yellow-billed Cuckoo","Adult carrying fecal sac":2,"Adult(s) with food for young or feeding young":188,"Adults(s) entering or leaving nest site indicating occupied nest":3,"Bird (or pair) apparently holding teritory":255,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":38,"Distraction display or injury-feigning":1,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":24,"Nest building or excavation of a nest hole":6,"Nest with young":20,"Pair observed in suitable habitat in breeding season":99,"Recently fledged young":39,"Singing male present on more than one date in the same place":603,"Used nest found":1,"Visiting probable nest site":7},
+				{"Common Name":"Yellow-rumped Warbler","Adult carrying fecal sac":1,"Adult(s) with food for young or feeding young":763,"Adults(s) entering or leaving nest site indicating occupied nest":8,"Bird (or pair) apparently holding teritory":700,"Courtship and display, agitated behavior. Includes copulation, well developed brood patch, or cloacal protuberance":153,"Distraction display or injury-feigning":37,"Female with egg in the oviduct":2,"Nest and eggs, bird on nest or egg, or eggshells beneath nest":14,"Nest building or excavation of a nest hole":30,"Nest with young":23,"Pair observed in suitable habitat in breeding season":373,"Recently fledged young":527,"Singing male present on more than one date in the same place":918,"Used nest found":2,"Visiting probable nest site":8}
+			];
+
+			// 2. dimensions
+			var svg_width  = 1300;
+			var svg_height = 1200;
+			var margin_left   = 200;
+			var margin_right  = 250;
+			var margin_top    = 300;
+			var margin_bottom = 25;
+			var padding_top    = 5;
+			var padding_bottom = 5;
+			var outer_width  = svg_width - margin_left - margin_right;
+			var outer_height = svg_height - margin_top - margin_bottom;
+
+			var svg = d3.select("#Bird_Breeding_Behavior")
+				.append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box = svg
+				.append("g")
+				.attr("transform", "translate(" + margin_left + "," + margin_top + ")")
+			;
+
+			var xScale = d3.scaleBand()
+				.domain(
+					Object.keys(Bird_Breeding_Behavior_data[0]).filter(
+						function(element){ return element != "Common Name";}
+					)
+				)
+				.rangeRound([0, outer_width])
+				.padding(0.1)
+			;
+			var yScale = d3.scaleBand()
+				.domain(
+					Bird_Breeding_Behavior_data.map(
+						function(dictionary){ return dictionary["Common Name"];}
+					)
+				)
+				.rangeRound([0, outer_height])
+				.padding(0.1)
+			;
+			
+			// axes
+			var xAxis_top = d3.axisTop()
+				.scale(xScale)
+			;
+			var yAxis_left = d3.axisLeft()
+				.scale(yScale)
+			;
+
+			var Bird_Breeding_xAxis_top = outer_box.append("g")
+				// .attr("transform", "translate(0,"+margin_top+")")
+				.call(xAxis_top)
+				.attr("class", "cool_axis_x")			
+			;
+			Bird_Breeding_xAxis_top.selectAll("text")
+				.attr("transform", "rotate(330)")
+				.style("text-anchor", "start")
+			;
+			var Bird_BreedingyAxis_left = outer_box.append("g")
+				.attr("transform", "translate(0,0)")
+				.call(yAxis_left)
+				.attr("class", "cool_axis_y")
+			;
+
+			// circle and tooltip
+			var tooltip_div = d3.select("body").append("div")	
+				.attr("class", "tooltip");
+
+			var keys = Object.keys(Bird_Breeding_Behavior_data[0]).filter(
+				function(element){ return element != "Common Name";}
+			);
+			for(var j = 0; j < keys.length; j++)
+			{
+				var column_name = keys[j];
+
+				var circles_g = outer_box
+					.append("g")
+				;
+				var circles = circles_g
+					.selectAll("circle").data(Bird_Breeding_Behavior_data).enter().append("circle")
+					.attr("class", "cool_circle")
+					.attr("dummy_1", column_name)
+					.attr("dummy_2", function(d, i){ return d[column_name]})
+					.style("r", function(d, i){ return Math.sqrt(d[column_name]); })
+					.attr("cx", xScale(column_name) + xScale.bandwidth()/2)
+					.attr("cy", function(d, i){ return yScale(d["Common Name"]) + yScale.bandwidth()/2; })
+					// .attr("fill", function(d,i) { return colors_google(i); } )
+					.on("mouseover", function(d, i){
+						var d3_select_this = d3.select(this);
+
+						d3_select_this
+							.classed("selected", true)
+						
+						d = d3_select_this.data()[0];
+
+						var dummy = d3_select_this.attr( "dummy_1" )
+						var num   = d3_select_this.attr( "dummy_2" )
+
+						tooltip_div
+							.classed("selected", true)
+							.html(
+									   "<span style='color:gray;font-weight:bold;'>Number of birds:</span> " + num
+								+ "<br/>"
+								+ "<br/><span style='color:gray;font-weight:bold;'>Kind of Bird:</span> " + d["Common Name"]
+								+ "<br/>"
+								+ "<br/><span style='color:gray;font-weight:bold;'>Bird Breeding Behavior:</span> " + dummy
+							)
+							.style("left", (d3.event.pageX) + "px")
+							.style("top", (d3.event.pageY) + "px");
+					})
+					.on("mouseout", function(d, i){
+						d3.select(this)
+							.classed("selected", false)
+							;
+						tooltip_div
+							.classed("selected", false)
+					;
+					})
+			}
+											
+		</script>		
+	</body>
+</html>
