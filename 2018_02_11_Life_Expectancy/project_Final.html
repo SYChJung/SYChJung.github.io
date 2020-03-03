@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <style>
+      .cool_text_description{
+        font-size:15px;
+        font-family:verdana;
+        alignment-baseline: auto;
+      }
+      svg { 
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 15px;
+      }
+
+      img.block {
+        display: block;
+        border: solid #333 1p;
+        margin: 0 auto;
+      }
+
+      .step {
+        padding-bottom: 90px;
+        margin-bottom: 10px;
+      }
+
+      .step, .row {
+        padding-top: 2rem;
+      }
+
+      .step:last-of-type {
+        padding-bottom: 150px;
+      }
+
+      .active {
+        background: beige;
+      }
+
+      footer {
+        background: #f1f1f1;
+        color: #333;
+        padding: 60px 0;
+        text-align: center;
+      }
+      .bg1 {
+        background: url('background.jpg');
+      }
+
+      .bg2 {
+        background: url('background.jpg');
+      }
+
+      .background-image {
+        background-size: cover;
+        padding: 250px 50px;
+        color: white;
+        text-align: center;
+        text-shadow: 0 0 5px rgba(0,0,0,0.5), 
+                     0 0 15px rgba(0,0,0,0.5),
+                     0 0 25px rgba(0,0,0,0.5);
+      }
+
+      .background-image h1 {
+        text-transform: uppercase;
+        font-size: 72px;
+      }
+      .sticky {
+        position: -webkit-sticky;
+        position: -moz-sticky;
+        position: -ms-sticky;
+        position: -o-sticky;
+        position: sticky;
+        height: fit-content;
+        top: 20%;
+      }
+
+      .graphic h3 {
+        text-align: center;
+        padding-bottom: 0;
+      }
+      div.tooltip { 
+        -webkit-transition: fill .2s; /* Safari */
+            transition: fill .2s;
+        position: absolute;     
+        /*width: 300px;         */
+        /*height: 20px;         */
+        padding: 5px;
+        border: 0px;    
+        border-radius: 3px;     
+        text-align: center; 
+        font: 15px sans-serif;    
+        /*background: lightsteelblue;*/
+        background: #001;
+        color: white;
+        opacity: 0.9;
+        pointer-events: none;
+      }
+
+      /* the words in the tooltip box */ 
+      .d3-tip {
+        line-height: 1;
+        padding: 12px;
+        background: #4cc1fc;
+        color: #fff;
+        border-radius: 6px;
+        font-size: 17px;
+      }
+      /* Creates a small triangle extender for the tooltip */
+      .d3-tip:after {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: #4cc1fc;
+        content: "\25BC";
+        position: absolute;
+        text-align: center;
+
+      }
+      /* Style northward tooltips specifically */
+      .d3-tip.n:after {
+        margin: -2px 0 0 0;
+        top: 100%;
+        left: 0;
+      }
+   }
+  </style>
+ </head>
+ <body>
+  <div class="tooltip"></div>
+  <div class="container">
+    <h1>Life Expectancy</h1>
+    <div>
+     <br>This is a graph showing the average life expectancy in the United States from 1900 to 2015.
+     The dataset is categorized by race, just black and white, and by gender, male and female.
+     I have made three graphs; average life expectancy, life expectancy by gender, and life expectancy by race.
+     <br>- Data source: <a href="https://catalog.data.gov/dataset/age-adjusted-death-rates-and-life-expectancy-at-birth-all-races-both-sexes-united-sta-1900">https://catalog.data.gov/dataset/age-adjusted-death-rates-and-life-expectancy-at-birth-all-races-both-sexes-united-sta-1900</a>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="step" id="Avg">
+          <p class="cool_text_description">
+          <h4>Average Life Expectancy</h4>
+           <br> This graph shows the average life expectancy in the United States from 1900 to 2015.
+           <br>- The data points are more scattered before 1945 and more focused afterwards. I suspect this is due to the absence of war after World War II.
+           <br>- The two World Wars were so devastating that people stopped waging <a href="https://en.wikipedia.org/wiki/Total_war" target="_blank">total war</a>. That is a possible reason for the steady life expectancy increase after 1945.
+           <br>- It plummeted in 1918, probably because the United States joined World War I. 
+           <br>- Unsurprisingly, life expectancy gradually increased over the years.
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+          </p>
+        </div>
+        <div class="step" id="Gender">
+          <p class="cool_text_description">
+           <h4>Life Expectancy by Gender</h4>
+           <br> This graph shows average life expectancy by gender.
+           <br>- As you can see, female life expectancy is longer than average, while male life expectancy is shorter.
+           <br>- While the fluctuations in life expectancy are similar for both genders,
+           the gap narrowed in the 1920's and swelled in the 1970's and 1980's.
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+          </p>
+        </div>
+        <div class="step" id="Race">
+          <p class="cool_text_description">
+           <h4>Life Expectancy by Race</h4>
+           <br> This graph shows the average life expectancy by race.
+           <br>- The life expectancy of white people closely follows the average, while the life expectancy of black people is greatly shorter.
+           <br>- Thankfully, the life expectancy gap between the two races decreased by each passing year.
+           <br>- This is because of opportunity for black people had gradually improved.
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+           <br>
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-6 graphic sticky">
+        <div id="chart-1"></div>
+      </div>
+    </div>
+   </div>
+
+
+
+  <footer>
+    <!-- This is a little space at the bottom. -->
+  </footer>
+
+  <!-- This is D3, our graphing library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+  <script src="https://d3js.org/topojson.v1.min.js"></script>
+
+  <!-- include our scrolling library -->
+  <script src='https://unpkg.com/scrollama'></script>
+  <script src='stickyfill.min.js'></script>
+
+  <script>
+    /* Allow position: sticky to work in old browsers */
+    var elements = document.querySelectorAll('.sticky');
+    Stickyfill.add(elements);
+
+    // instantiate the scrollama
+    var scroller = scrollama();
+
+    scroller
+      .setup({
+        offset: 0.20, // how far from the top?
+        step: '.step', // class for stepping through
+        debug: false, // hides the lines
+        container: 'container'
+      })
+      .onStepEnter(function(response) {
+        // trigger the stepin event
+        d3.select(response.element).dispatch('stepin')
+      })
+      .onStepExit(function(response) {
+        // trigger the stepout event
+        d3.select(response.element).dispatch('stepout')
+      })
+  </script>
+
+  <!-- Now we include our actual visualization -->
+  <script src="d3-tip.js"></script>
+  <script src="project_Final_01.js"></script>
+  <script src="project_Final_02.js"></script>
+  <script src="project_Final_03.js"></script>
+  <!-- <script src="project02_02.js"></script> -->
+
+ </body>
+</html>

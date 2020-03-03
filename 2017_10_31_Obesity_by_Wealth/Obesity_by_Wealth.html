@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <style>
+   .cool_text_description{
+     font-size:15px;
+     font-family:verdana;
+     alignment-baseline: auto;
+   }
+   div.tooltip { 
+     -webkit-transition: fill .2s;
+         transition: fill .2s;
+     position: absolute;     
+     padding: 5px;
+     border: 0px;    
+     border-radius: 3px;     
+     text-align: center; 
+     font: 15px sans-serif;    
+     background: #001;
+     color: white;
+     opacity: 0;
+     pointer-events: none;	
+   }
+   div.tooltip.selected{
+     -webkit-transition: fill .2s; /* Safari */
+         transition: fill .2s;
+     opacity: 0.9;
+   }
+  </style>
+ </head>
+ <body>
+  <div class="container">
+  <h1>Obesity by Wealth</h1>
+  <p class="cool_text_description">
+   <br> This is a line chart showing the relationship between obesity rate and income.
+   From this chart we noticed some interesting things.
+   <br>- The richer you are, the less obese you will be in even number years (?!).
+   <br>- In odd number years, the income has little affect on obesity rate (?!!).
+   <br>- The overall obesity rates are increasing over time.
+   <br>
+  </p>
+  <div id="chart-1"></div>
+
+<!--   <p class="cool_text_description">
+   <br> Bar Chart
+  </p>
+  <div id="chart-2"></div> -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+  <script src="d3-tip.js"></script>
+  <script src="project02_01.js"></script>
+  <!-- <script src="project02_02.js"></script> -->
+   </div>
+ </body>
+</html>
