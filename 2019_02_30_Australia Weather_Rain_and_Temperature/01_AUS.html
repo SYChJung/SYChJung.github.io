@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Australia Weather: Rain and Temperature
+		</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<style type="text/css">
+			body {
+				margin: 15px;
+				background-color: #F1F3F3;
+
+				font-family:verdana;
+			}
+			h1{
+				color:#558;
+				text-align:center;
+			}
+
+			th{
+				background-color: white;
+				padding: 0 30px 0 0;
+			}
+			th.date{
+				padding-right: 120px;
+			}
+			td{
+				background-color: white;
+			}
+
+			g{
+				pointer-events: all;
+			}
+			.cool_text_description{
+				alignment-baseline: auto;
+			}
+
+			#AUS_rain_chart_1,
+			#AUS_rain_chart_2,
+			#AUS_rain_chart_3{
+				text-align: center;
+			}
+	        rect {
+	            fill: steelblue;
+	        }
+	        circle {
+	        	fill: steelblue;
+	        	opacity: 0.8;
+	        }
+			.axis text {
+			  fill: black;
+			  /*stroke: #000;*/
+			  shape-rendering: crispEdges;
+			}
+			.line {
+				stroke: steelblue;
+				fill:none;
+				stroke-width: 2;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>Visualizing Australia Weather: Rain and Temperature</h1>
+		<p>
+			Massive bush fires in Australia started in late 2019 and continued to 2020. Among the theories to explain why the fires occured in such a national scale, many point to global warming. Because of global warming, the quantity of rainfall decreased, and thus it became hard to contain fires triggered by natural factors. This is my attempt to visualize this theory, showing the relationship between rainfall and temperature and temperature change over time in Australia.
+		</p>
+		<p>
+			For this project I used two datasets.
+			<ul>
+				<li>The first dataset (<a href="https://www.kaggle.com/jsphyg/weather-dataset-rattle-package">Rain in Australia</a>) consists of weather data concerning rainfall in Australia for the last decade (For 2016 there is only data for January): when and where did it rain, how much did it rain, what were the temperature and wind speed, etc. The data was collected in several places. I used the data collected in Albury where the bush fires were extreme.</li>
+				<li>The second dataset (<a href="http://www.bom.gov.au/climate/change/#tabs=Tracker&tracker=timeseries">Australia climate change</a>) is about annual average temperatures in Australia for the last century.</li>
+			</ul>
+		</p>
+	    <div id='startpoint'>
+	    </div>
+	    <div id='midpoint'>
+	    </div>
+	</body>
+	<script type="text/javascript" charset="utf-8">
+		// 1. Data
+        d3.text("weather_Albury2.csv", function(data) {
+            // ---------- ---------- ---------- Data ---------- ---------- ---------- //
+			let data_full = d3.csvParse(data);
+
+			var parseTime = d3.timeParse("%Y-%m-%d");
+
+			data_full.forEach(function(d) {
+				// console.log(d["Date"])
+      			d.Date = parseTime(d.Date);
+      			// console.log(d.Date)
+  			});
+
+            let data_sample = data_full.slice(0, 5);
+
+        // function TODO_bring_back_later(){
+			let columns = Object.keys(data_sample[0]);
+
+			// ---------- ---------- ---------- table ---------- ---------- ---------- //
+			let table = d3.select('#startpoint').append('table');
+			let thead = table.append('thead');
+			let tbody = table.append('tbody');
+
+			thead.append('tr')
+				.selectAll('th')
+				.data(columns)
+				.enter()
+				.append('th')
+				.classed("date", (column, i) => (column == "Date"))
+				.text(function (d) { return d });
+
+			let rows = tbody
+				.selectAll('tr')
+				.data(data_sample)
+				.enter()
+				.append('tr');
+
+			// var parseTime_table = d3.timeParse("%Y-%m-%d");
+			let cells = rows.selectAll('td')
+				.data(
+					// function(row) {
+					// 	return columns.map(
+					// 		function (column) {
+					// 			return { column: column, value: row[column] }
+					// 		}
+					// 	)
+					// }
+					row => columns.map(
+						// console.log(typeof row[Date]),
+						column => ({
+							column: column,
+							value: (typeof row[column] === "string")
+								? row[column]
+								: row[column].toDateString()
+						})
+					)
+				)
+				.enter()
+				.append('td')
+				.text(function (d) { return d.value });
+
+			// ---------- ---------- ---------- table title ---------- ---------- ---------- //
+			d3.select('#startpoint').append('p')
+				.attr('class', "cool_text_description")
+				.html('&#9650; This is the first 5 rows of the first dataset');
+			// <div id="AUS_rain_chart_1"></div>
+			// <p class="cool_text_description">
+			// 	&#9650; This is a chart about rainfall from 2013 to 2019
+			// </p>
+
+			// ---------- ---------- ---------- table paragraph ---------- ---------- ---------- //
+			d3.select('#startpoint').append('p')
+				.html('The table shows the first five rows of the dataset. We can see 16 columns: "Date", "MinTemp", "MaxTemp", "Rainfall", "Sunshine", "WindGustDir", "WindGustSpeed", "WindDir3pm", "WindSpeed3pm", "Humidity3pm", "Cloud3pm", "Temp3pm", "RainToday", "RISK_MM", "RainTomorrow"."');
+			d3.select('#startpoint').append('p')
+				.html('Here, I focused on the columns "Rainfall" and "Maxtemp."');
+        // }
+
+
+
+			// ---------- ---------- ---------- chart ---------- ---------- ---------- //
+			let svg_width  = 900;
+			let svg_height = 300;
+			let margin_left   = 50;
+			let margin_right  = 50;
+			let margin_top    = 25;
+			let margin_bottom = 25;
+			let padding_top    = 5;
+			let padding_bottom = 5;
+			let outer_width  = svg_width - margin_left - margin_right;
+			let outer_height = svg_height - margin_top - margin_bottom;
+			let panel_height = outer_height/2
+
+			var svg = d3.select("#startpoint").append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box = svg.append("g")
+				.attr("transform", `translate(${margin_left}, ${margin_top})`)
+			;
+
+			var xScale = d3.scaleTime()
+				.domain([
+					d3.min(
+						data_full.map(d => d.Date)
+					),
+					d3.max(
+						data_full.map(d => d.Date)
+					)
+				])
+				.range([0, outer_width])
+			;
+			var yScale = d3.scaleLinear()
+				.domain([
+					0,
+					d3.max(
+						data_full.map(d => d.Rainfall)
+					)
+				])
+				.range([0, outer_height])
+			;
+			var yScale_axis = d3.scaleLinear()
+				.domain([
+					0,
+					d3.max(
+						data_full.map(d => d.Rainfall)
+					)
+				])
+				.range([outer_height, 0])
+			;
+
+			var rectangles = outer_box
+				.selectAll('rect')
+				.data(data_full)
+				.enter()
+				.append('rect')
+				// .attr("x", (d, i) => { console.log(d.Date); console.log(d.Rainfall); return i * 30;})
+				// .attr("x", (d, i) => xScale(parseTime(d.Date)))
+				.attr("x", (d, i) => xScale(d.Date))
+				.attr("y", (d, i) => outer_height - yScale(d.Rainfall))
+				.attr("width", 3)
+				.attr("height", (d, i) => yScale(d.Rainfall))
+			;
+
+		    outer_box.append("g")
+		        .attr("class", "axis")
+		        .attr("transform", `translate(0, ${outer_height})`)
+		        .call(d3.axisBottom(xScale)
+		                .tickFormat(d3.timeFormat("%Y-%m-%d")))
+
+		    outer_box.append("g")
+		        .attr("class", "y axis")
+		        .call(d3.axisLeft(yScale_axis)
+		      	  .tickFormat(d3.format(".0s")))
+		      .append("text")
+		        .attr("transform", "rotate(-90)")
+		        .attr("y", 6)
+		        .attr("dy", ".71em")
+		        .text("Rainfall for day(mm)");
+
+
+			let rain_chart_1 = d3.select('#startpoint').append('div')
+				.attr('id', 'AUS_rain_chart_1');
+
+			// ---------- ---------- ---------- chart title ---------- ---------- ---------- //
+			d3.select('#startpoint').append('p')
+				.attr('class', "cool_text_description")
+				.html('&#9650; This is a chart about rainfall change from 2009 to 2019 (There is only data for January in 2016)');
+
+			// ---------- ---------- ---------- chart paragraph ---------- ---------- ---------- //
+			d3.select('#startpoint').append('p')
+				.html('We can confirm that rainfall decreased over the years. And since 2012, the frequency of rainfall lessened. This is considered to be the reason the bush fires started in 2019 cannot be contained.');
+			d3.select('#startpoint').append('p')
+				.html('I used generalized boosted regression modeling to find out what most affected the rainfall. The result shows the 3 major factors are "MaxTemp", "MinTemp", and "Temp3pm." It seems that temperature affects how often and how much the rain falls.');
+			d3.select('#startpoint').append('p')
+				.html('Therefore, I made the plot below showing the relationship between rainfall and max temperature.');
+
+
+
+
+			// ---------- ---------- ---------- scatter plot ---------- ---------- ---------- //
+			var svg_sp = d3.select("#startpoint").append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box_sp = svg_sp.append("g")
+				.attr("transform", `translate(${margin_left}, ${margin_top})`)
+			;
+
+			var xScale_sp = d3.scaleLinear()
+				.domain([
+					// d3.min(
+					// 	data_full.map(d => d.MaxTemp)
+					// )
+					0,
+					// d3.max(
+					// 	data_full.map(d => d.MaxTemp)
+					// )
+					45.3
+				])
+				.range([0, outer_width])
+			;
+			// var yScale
+
+			var circles_g = outer_box_sp
+				.append("g")
+			;
+
+			var circles = circles_g
+				.selectAll('circle')
+				.data(data_full)
+				.enter()
+				.append('circle')
+				.attr("class", "cool_circle")
+				.style("r", 3)
+				.attr("cx", (d, i) => xScale_sp(d.MaxTemp))
+				.attr("cy", (d, i) => outer_height - yScale(d.Rainfall))
+			;
+
+		    outer_box_sp.append("g")
+		        .attr("class", "axis")
+		        .attr("transform", `translate(0, ${outer_height})`)
+		        .call(d3.axisBottom(xScale_sp))
+			    .append("text")
+			      .attr("x", outer_width - 50)
+			      .attr("y", -10)
+			      .text("Max Temperature (C)");
+		    outer_box_sp.append("g")
+		        .attr("class", "y axis")
+		        .call(d3.axisLeft(yScale_axis)
+		      	  .tickFormat(d3.format(".0s")))
+		      .append("text")
+		        .attr("transform", "rotate(-90)")
+		        .attr("y", 6)
+		        .attr("dy", ".71em")
+		        .text("Rainfall for day(mm)");
+
+		    outer_box_sp.append("line")
+		        .style("stroke", "black")
+		        .attr("x1", (d, i) => xScale_sp(25))
+		        .attr("y1", 0)
+		        .attr("x2", (d, i) => xScale_sp(25))
+		        .attr("y2", outer_height);
+
+			let rain_chart_2 = d3.select('#startpoint').append('div')
+				.attr('id', 'AUS_rain_chart_2');
+
+			// ---------- ---------- ---------- scatter plot title ---------- ---------- ---------- //
+			d3.select('#startpoint').append('p')
+				.attr('class', "cool_text_description")
+				.html('&#9650; This is a scatter plot showing the relationship between rainfall and max temperature');
+
+			// ---------- ---------- ---------- scatter plot paragraph ---------- ---------- ---------- //
+			d3.select('#startpoint').append('p')
+				.html('From this plot, we can see that'
+					+ '<ul>'
+						+ '<li>the rainfall increases in frequency and intensity as the temperature increases when the temperature is lower than 25 (C).</li>'
+						+ '<li>On the other hand, the rainfall decreases as the temperature increases when the temperature is higher than 25 (C).</li>'
+					+ '</ul>'
+					+ 'This implies that if the temperature rises over than 25 (C) than the country will have less rain.');
+			d3.select('#startpoint').append('p')
+				.html('This leads us to the second dataset about annual average temperatures in Australia from 1910 to 2019. This dataset has only two columns: "year" and "annual average temperatures" of that year.');
+		});
+    </script>
+
+
+    <script type="text/javascript" charset="utf-8">
+			// ---------- ---------- ---------- line plot ---------- ---------- ---------- //
+        d3.text("AUS_mean_temp3.csv", function(data) {
+            // ---------- ---------- ---------- Data ---------- ---------- ---------- //
+			let data_AUS_weather = d3.csvParse(data);
+
+			var parseTime = d3.timeParse("%Y-%m-%d");
+			// console.log(typeof data_AUS_weather[0]["Date"])
+
+			data_AUS_weather.forEach(function(d) {
+				// typeof console.log(d["Date"])
+      			d.Date = parseTime(d.Date);
+      			// typeof console.log(d.Date)
+  			});
+
+			let svg_width  = 900;
+			let svg_height = 300;
+			let margin_left   = 50;
+			let margin_right  = 50;
+			let margin_top    = 25;
+			let margin_bottom = 25;
+			let padding_top    = 5;
+			let padding_bottom = 5;
+			let outer_width  = svg_width - margin_left - margin_right;
+			let outer_height = svg_height - margin_top - margin_bottom;
+			let panel_height = outer_height/2
+			;
+
+			var svg = d3.select("#midpoint").append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.style("background-color", "#fff")
+			;
+			var outer_box = svg.append("g")
+				.attr("transform", `translate(${margin_left}, ${margin_top})`)
+			;
+
+			var xScale = d3.scaleTime()
+				.domain([
+					d3.max(
+						data_AUS_weather.map(d => d.Date)
+					),
+					d3.min(
+						data_AUS_weather.map(d => d.Date)
+					)
+				])
+				.range([0, outer_width])
+			;
+			var xScale_axis = d3.scaleTime()
+				.domain([
+					d3.min(
+						data_AUS_weather.map(d => d.Date)
+					),
+					// "1910-01-01 00:00:00",
+					d3.max(
+						data_AUS_weather.map(d => d.Date)
+					)
+					// "2019-01-01 00:00:00"
+				])
+				.range([0, outer_width])
+			;
+
+			var yScale = d3.scaleLinear()
+				.domain([
+					// d3.min(
+					// 	data_AUS_weather.map(d => d.Temp)
+					// ),
+					-1.25,
+					// d3.max(
+					// 	data_AUS_weather.map(d => d.Temp)
+					// )
+					1.52
+				])
+				.range([0, outer_height])
+			;
+			var yScale_axis = d3.scaleLinear()
+				.domain([
+					// d3.min(
+					// 	data_AUS_weather.map(d => d.Temp)
+					// ),
+					-1.25,
+					// d3.max(
+					// 	data_AUS_weather.map(d => d.Temp)
+					// )
+					1.52
+				])
+				.range([outer_height, 0])
+			;
+
+			var valueline = d3.line()
+				.x(function(d) { return xScale(d['Date']); })
+				.y(function(d) { return yScale(d['Temp']); });
+
+		    outer_box.append("g")
+		      .attr("class", "axis")
+		      .attr("transform", `translate(0, ${outer_height})`)
+		      .call(d3.axisBottom(xScale_axis)
+		              .tickFormat(d3.timeFormat("%Y")))
+		    outer_box.append("g")
+		      .attr("class", "y axis")
+		      .call(d3.axisLeft(yScale_axis))
+		      	// .tickFormat(d3.format(".s")))
+			    .append("text")
+			      .attr("transform", "rotate(-90)")
+			      .attr("y", 6)
+			      .attr("dy", ".71em")
+			      .text("Mean Temperature Anomaly (C)");
+
+		    outer_box.append("path")
+		        .data([data_AUS_weather])
+		        .attr("class", "line")
+		        .attr("d", valueline);
+
+
+
+			let rain_chart_3 = d3.select('#midpoint').append('div')
+				.attr('id', 'AUS_rain_chart_3');
+
+			// ---------- ---------- ---------- line plot title ---------- ---------- ---------- //
+			d3.select('#midpoint').append('p')
+				.attr('class', "cool_text_description")
+				.html('&#9650; Australian climate variability and change from 1910 to 2019');
+
+			// ---------- ---------- ---------- line plot paragraph ---------- ---------- ---------- //
+			d3.select('#midpoint').append('p')
+				.html('In this line plot, we can see that the mean temperature of Australia gradually increased. The "0.0" on the y-axis means 25(C), and we can see the mean temperature of Australia was over 25(C) since the 1960\'s, and it has increased ever since.');
+			d3.select('#midpoint').append('p')
+				.html('This plot and my previous plot tell us that the temperature of Australia likely increased because of global warming, and it led to the shortage of rain. And it likely eventually led to the uncontrolled bush fire.');	
+        });
+
+    </script>
+</html>
+
