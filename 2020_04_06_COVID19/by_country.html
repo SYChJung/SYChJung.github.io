@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>COVID-19 Coronavirus Circle Chart</title>
+		<link rel="stylesheet" href="covid19.css">
+	</head>
+	<body>
+		<h1>COVID-19 Coronavirus Circle Chart</h1>
+		<p style="font-weight: bold;">
+			BY COUNTRY | <a href="by_state.html">BY U.S. STATE AND TERRITORY</a>
+		</p>
+
+		<section id="intro">
+		</section>
+
+		<svg id="chart">
+			<g id="circles">
+			</g>
+			<g id="dummies">
+			</g>
+			<g id="slider">
+			</g>
+			<defs>
+				<radialGradient id="population_gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+					<stop offset="0%" style="stop-color: rgb(64, 224, 208); stop-opacity: 0.6" />
+					<stop offset="100%" style="stop-color: rgb(255, 255, 255); stop-opacity: 0" />
+				</radialGradient>
+			</defs>
+		</svg>
+
+		<section id="write_up">
+		</section>
+	</body>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="covid19.js"></script>
+	<script type="text/javascript">
+		d3.queue()
+		.defer(d3.csv, "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+		.defer(d3.csv, "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
+		.defer(d3.csv, "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+		.defer(d3.csv, "data_by_country/population_world_2020_df.csv")
+		.await(
+			function(error, data_confirmed, data_recoveries, data_deaths, data_population) {
+				if (error) throw error;
+
+				// ---------- ---------- clean the datasets ---------- ---------- //
+				let region_to_yyyymmdd_to_count_tested;
+				let region_to_yyyymmdd_to_count_confirmed;
+				let region_to_yyyymmdd_to_count_recoveries;
+				let region_to_yyyymmdd_to_count_deaths;
+				let region_to_population;
+
+				function keep_and_parse(list_of_dicts){
+					list_of_dicts.forEach(
+						function(dict){
+							// delete unnecessary key-value pairs
+							delete dict["Province/State"];
+							delete dict["Lat"];
+							delete dict["Long"];
+
+							// country names: remove ", The" or "The "
+							let c = dict["Country/Region"];
+							let c_split = c.split(/, The$/);
+							if (2 <= c_split.length){
+								dict["Country/Region"] = c_split[0];
+							}
+							c_split = c.split(/^The /);
+							if (2 <= c_split.length){
+								dict["Country/Region"] = c_split[1];
+							}
+							// country names: special cases
+							let NAME_TO_NAME = {
+								"Timor-Leste" : "East Timor",
+								"Reunion" : "France",
+							}
+							dict["Country/Region"] = NAME_TO_NAME[dict["Country/Region"]] || dict["Country/Region"];
+
+							// parse string values to int values
+							for (let key in dict){
+								if (key != "Country/Region"){
+									dict[key] = parseInt(dict[key]);
+								}
+							}
+
+							return dict;
+						}
+					)
+
+					return list_of_dicts;
+				}
+				function group_by_and_sum(list_of_dicts){
+					let list_of_key_and_value = d3.nest()
+						.key(d => d["Country/Region"])
+						.rollup(
+							function(values){  // `values` is a list of dicts
+								let date_to_count = {};
+
+								values.forEach(
+									function(dict){
+										delete dict["Country/Region"];
+										for (m_d_yy in dict){
+											let yyyymmdd = convert_m_d_yy_to_yyyymmdd(m_d_yy);
+											date_to_count[yyyymmdd] = (date_to_count[yyyymmdd] || 0) + (dict[m_d_yy] || 0);
+										}
+									}
+								);
+								return date_to_count;
+							}
+							// values => d3.sum(values, g => g["3/22/20"])  // if we want the sum of "3/22/20" only
+						)
+						.entries(list_of_dicts);
+					return list_of_key_and_value;
+				}
+				function reshape_to_key_to_value(list_of_key_and_value){
+					let key_to_value = {};
+					list_of_key_and_value.forEach(
+						function(key_and_value){
+							key_to_value[key_and_value["key"]] = key_and_value["value"];
+						}
+					);
+					return key_to_value;
+				}
+				function skip_cruise_ships(key_to_value){
+					// special cases
+					delete key_to_value["Cruise Ship"];
+					delete key_to_value["Diamond Princess"];
+
+					return key_to_value;
+				}
+
+				region_to_yyyymmdd_to_count_confirmed  = skip_cruise_ships(reshape_to_key_to_value(group_by_and_sum(keep_and_parse(data_confirmed))));
+				region_to_yyyymmdd_to_count_recoveries = skip_cruise_ships(reshape_to_key_to_value(group_by_and_sum(keep_and_parse(data_recoveries))));
+				region_to_yyyymmdd_to_count_deaths     = skip_cruise_ships(reshape_to_key_to_value(group_by_and_sum(keep_and_parse(data_deaths))));
+
+				function reshape_to_region_to_population(list_of_dicts){
+					let region_to_population = {}
+					// special cases
+					let UN_NAME_TO_JHU_NAME = {
+						"Bolivia (Plurinational State of)": "Bolivia",
+						"Brunei Darussalam": "Brunei",
+						"Congo" : "Congo (Brazzaville)",
+						"Democratic Republic of the Congo": "Congo (Kinshasa)",
+						"Côte d'Ivoire": "Cote d'Ivoire",
+						"Timor-Leste": 'East Timor',
+						"Iran (Islamic Republic of)": 'Iran',
+						"Republic of Korea": "Korea, South",
+						"Republic of Moldova": "Moldova",
+						"Russian Federation": "Russia",
+						"Syrian Arab Republic": 'Syria',
+						"China, Taiwan Province of China": 'Taiwan*',
+						"United Republic of Tanzania": "Tanzania",
+						"United States of America": "US",
+						"Venezuela (Bolivarian Republic of)": "Venezuela",
+						'Viet Nam': 'Vietnam'
+					};
+					list_of_dicts.forEach(
+						function(dict){
+							let k = UN_NAME_TO_JHU_NAME[dict["Location"]] || dict["Location"];
+							region_to_population[k] = parseInt(dict["PopTotal"]);
+						}
+					);
+					return region_to_population;
+				}
+				region_to_population = reshape_to_region_to_population(data_population);
+
+				// ---------- ---------- write the intro, analysis, design decisions ---------- ---------- //
+				write_intro(
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					has_confirmed  =region_to_yyyymmdd_to_count_confirmed,
+					has_recoveries =region_to_yyyymmdd_to_count_recoveries,
+					has_deaths     =region_to_yyyymmdd_to_count_deaths,
+					has_population =region_to_population,
+					regions ="countries",
+				);
+
+				write_analysis(
+					regions ="countries"
+				);
+
+				write_design_decisions(
+					has_population =region_to_population,
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					region  ="country",
+					regions ="countries",
+				);
+
+				write_data_source(
+					regions ="countries"
+				);
+
+				write_code();
+				// ---------- ---------- list of regions ordered by the date of first confirmed case ---------- ---------- //
+				let region_to_yyyymmdd_of_1st_confirmed_case = fill_region_to_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmdd_to_count_confirmed);
+
+				// early dates are not in the data
+				// reference: https://en.wikipedia.org/wiki/Timeline_of_the_2019%E2%80%9320_coronavirus_pandemic_in_November_2019_%E2%80%93_January_2020#Events,_reactions,_and_measures_in_mainland_China
+				region_to_yyyymmdd_of_1st_confirmed_case["China"]       = "20191117";
+				region_to_yyyymmdd_of_1st_confirmed_case["Thailand"]    = "20200113";
+				region_to_yyyymmdd_of_1st_confirmed_case["Japan"]       = "20200116";
+				region_to_yyyymmdd_of_1st_confirmed_case["Korea, South"]= "20200120";
+				region_to_yyyymmdd_of_1st_confirmed_case["Taiwan*"]     = "20200121";
+				region_to_yyyymmdd_of_1st_confirmed_case["US"]          = "20200121";
+
+				let regions_sorted_by_yyyymmdd_of_1st_confirmed_case = fill_regions_sorted_by_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmdd_of_1st_confirmed_case)
+
+				// ---------- ---------- first yyyymmdd, last yyyymmdd ---------- ---------- //
+				let first_yyyymmdd = "20200122";  // This is when the data starts
+				let last_yyyymmdd = d3.max(
+					Object.keys(
+						region_to_yyyymmdd_to_count_confirmed["Afghanistan"]  // any country
+					)
+				);
+
+				// ---------- ---------- draw chart ---------- ---------- //
+				const initial_yyyymmdd = last_yyyymmdd;
+				draw_chart(
+					region_to_yyyymmdd_to_count_tested,
+					region_to_yyyymmdd_to_count_confirmed,
+					region_to_yyyymmdd_to_count_recoveries,
+					region_to_yyyymmdd_to_count_deaths,
+					region_to_population,
+					region_to_yyyymmdd_of_1st_confirmed_case,
+					regions_sorted_by_yyyymmdd_of_1st_confirmed_case,
+					first_yyyymmdd,
+					last_yyyymmdd,
+					initial_yyyymmdd,
+				);
+			}
+		);
+	</script>
+</html>

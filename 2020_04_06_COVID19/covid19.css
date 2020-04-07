@@ -1,0 +1,83 @@
+body{
+	margin: 30px;
+	font-family: verdana;
+	font-size: 15px;
+}
+
+span.tested{
+	font-weight: bold;
+	color: #ccc;/*gray*/
+}
+span.confirmed{
+	font-weight: bold;
+	color: rgb(204, 204, 0);/*yellow*/
+}
+span.recoveries{
+	font-weight: bold;
+	color: rgb(0, 255, 0);/*green*/
+}
+span.deaths{
+	font-weight: bold;
+	color: rgb(255, 0, 0);/*red*/
+}
+span.population{
+	font-weight: bold;
+	color: rgb(173, 234, 234);/*blue*/
+}
+
+circle.tested{
+	fill: rgba(100, 100, 100, 0.1);/*gray*/
+}
+circle.confirmed{
+	fill: rgba(255, 255, 0, 0.5);/*yellow*/
+}
+circle.recoveries{
+	fill: rgba(0, 255, 0, 0.5);/*green*/
+}
+circle.deaths{
+	fill: rgba(255, 0, 0, 0.5);/*red*/
+}
+text.region_name{
+	alignment-baseline: middle;
+	font-size: 10px;
+	text-transform: uppercase;
+}
+text.region_name.selected{
+	font-weight: bold;
+}
+
+span.tooltip_label{
+	color: gray;
+	font-weight: bold;
+}
+
+div.tooltip {
+	-webkit-transition: fill .2s; /* Safari */
+			transition: fill .2s;
+	position: absolute;
+	/*width: 250px;*/
+	/*height: 20px;*/
+	padding: 5px;
+	border: 0px;
+	border-radius: 3px;
+	text-align: left;
+	font: 10px sans-serif;
+	/*background: lightsteelblue;*/
+	background: #001;
+	color: white;
+	opacity: 0;
+	pointer-events: none;
+}
+div.tooltip.selected{
+	-webkit-transition: fill .5s; /* Safari */
+			transition: fill .5s;
+	opacity: 0.8;
+}
+
+circle.population{
+	fill: url(#population_gradient);
+	visibility: hidden;
+}
+circle.population.selected{
+	visibility: visible;
+}

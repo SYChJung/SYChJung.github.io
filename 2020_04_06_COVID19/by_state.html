@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>COVID-19 Coronavirus Circle Chart - U.S. States and Territories</title>
+		<link rel="stylesheet" href="covid19.css">
+	</head>
+	<body>
+		<h1>COVID-19 Coronavirus Circle Chart - U.S. States and Territories</h1>
+		<p style="font-weight: bold;">
+			<a href="by_country.html">BY COUNTRY</a> | BY U.S. STATE AND TERRITORY
+		</p>
+
+		<section id="intro">
+		</section>
+
+		<svg id="chart">
+			<g id="circles">
+			</g>
+			<g id="dummies">
+			</g>
+			<g id="slider">
+			</g>
+			<defs>
+				<radialGradient id="population_gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+					<stop offset="0%" style="stop-color: rgb(64, 224, 208); stop-opacity: 0.6" />
+					<stop offset="100%" style="stop-color: rgb(255, 255, 255); stop-opacity: 0" />
+				</radialGradient>
+			</defs>
+		</svg>
+
+		<section id="write_up">
+		</section>
+	</body>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="covid19.js"></script>
+	<script type="text/javascript">
+		d3.queue()
+		.defer(d3.json, "https://covidtracking.com/api/states/daily")
+		.defer(d3.csv, "data_by_state/population_US_states_2020_df.csv")
+		.await(
+			function(error, data_by_state, data_population) {
+				if (error) throw error;
+
+				// ---------- ---------- clean the datasets ---------- ---------- //
+				const STATE_ABBREVIATION_TO_NAME = {
+					"AL" : "Alabama",
+					"AK" : "Alaska",
+					"AS" : "American Samoa",
+					"AZ" : "Arizona",
+					"AR" : "Arkansas",
+					"CA" : "California",
+					"CO" : "Colorado",
+					"CT" : "Connecticut",
+					"DE" : "Delaware",
+					"FL" : "Florida",
+					"GA" : "Georgia",
+					"GU" : "Guam",
+					"HI" : "Hawaii",
+					"ID" : "Idaho",
+					"IL" : "Illinois",
+					"IN" : "Indiana",
+					"IA" : "Iowa",
+					"KS" : "Kansas",
+					"KY" : "Kentucky",
+					"LA" : "Louisiana",
+					"ME" : "Maine",
+					"MD" : "Maryland",
+					"MA" : "Massachusetts",
+					"MI" : "Michigan",
+					"MN" : "Minnesota",
+					"MS" : "Mississippi",
+					"MO" : "Missouri",
+					"MP" : "Northern Mariana Islands",
+					"MT" : "Montana",
+					"NE" : "Nebraska",
+					"NV" : "Nevada",
+					"NH" : "New Hampshire",
+					"NJ" : "New Jersey",
+					"NM" : "New Mexico",
+					"NY" : "New York",
+					"NC" : "North Carolina",
+					"ND" : "North Dakota",
+					"OH" : "Ohio",
+					"OK" : "Oklahoma",
+					"OR" : "Oregon",
+					"PA" : "Pennsylvania",
+					"PR" : "Puerto Rico",
+					"RI" : "Rhode Island",
+					"SC" : "South Carolina",
+					"SD" : "South Dakota",
+					"TN" : "Tennessee",
+					"TX" : "Texas",
+					"UT" : "Utah",
+					"VT" : "Vermont",
+					"VA" : "Virginia",
+					"VI" : "Virgin Islands",
+					"WA" : "Washington",
+					"WV" : "West Virginia",
+					"WI" : "Wisconsin",
+					"WY" : "Wyoming",
+					"Ab" : "Commonwealth/Territory:",
+					"DC" : "District of Columbia",
+					"MH" : "Marshall Islands",
+				};
+
+				let region_to_yyyymmdd_to_count_tested;
+				let region_to_yyyymmdd_to_count_confirmed;
+				let region_to_yyyymmdd_to_count_recoveries;
+				let region_to_yyyymmdd_to_count_deaths;
+				let region_to_population;
+
+				let region_to_yyyymmdd_to_count_negative;
+				let region_to_yyyymmdd_to_count_pending;
+
+				data_by_state.forEach(
+					function(dict){
+						let region = STATE_ABBREVIATION_TO_NAME[dict["state"]]
+
+						region_to_yyyymmdd_to_count_tested     = region_to_yyyymmdd_to_count_tested || {};
+						region_to_yyyymmdd_to_count_confirmed  = region_to_yyyymmdd_to_count_confirmed || {};
+						region_to_yyyymmdd_to_count_negative   = region_to_yyyymmdd_to_count_negative || {};
+						region_to_yyyymmdd_to_count_pending  = region_to_yyyymmdd_to_count_pending || {};
+						region_to_yyyymmdd_to_count_recoveries = region_to_yyyymmdd_to_count_recoveries || {};
+						region_to_yyyymmdd_to_count_deaths     = region_to_yyyymmdd_to_count_deaths || {};
+
+						region_to_yyyymmdd_to_count_tested[region]     = region_to_yyyymmdd_to_count_tested[region] || {};
+						region_to_yyyymmdd_to_count_confirmed[region]  = region_to_yyyymmdd_to_count_confirmed[region] || {};
+						region_to_yyyymmdd_to_count_negative[region]   = region_to_yyyymmdd_to_count_negative[region] || {};
+						region_to_yyyymmdd_to_count_pending[region]  = region_to_yyyymmdd_to_count_pending[region] || {};
+						region_to_yyyymmdd_to_count_recoveries[region] = region_to_yyyymmdd_to_count_recoveries[region] || {};
+						region_to_yyyymmdd_to_count_deaths[region]     = region_to_yyyymmdd_to_count_deaths[region] || {};
+
+						region_to_yyyymmdd_to_count_tested[region][dict["date"]] = 
+							dict["pending"] + dict["negative"] + dict["positive"]
+						;
+						region_to_yyyymmdd_to_count_confirmed[region][dict["date"]] = 
+							dict["positive"]
+						;
+						region_to_yyyymmdd_to_count_negative[region][dict["date"]] = dict["negative"]
+						;
+						region_to_yyyymmdd_to_count_pending[region][dict["date"]] = dict["pending"]
+						;
+						region_to_yyyymmdd_to_count_recoveries[region][dict["date"]] = 
+							dict["recovered"]
+						;
+						region_to_yyyymmdd_to_count_deaths[region][dict["date"]] = 
+							dict["death"]
+						;
+					}
+				);
+
+				function reshape_to_region_to_population(list_of_dicts){
+					let region_to_population = {};
+
+					list_of_dicts.forEach(
+						function(dict){
+							let k = STATE_ABBREVIATION_TO_NAME[dict["State"]];
+							region_to_population[k] = parseInt(dict["Pop"]);
+						}
+					);
+
+					// These data are from wikipedia
+					region_to_population[STATE_ABBREVIATION_TO_NAME["AS"]] = 55191;
+					region_to_population[STATE_ABBREVIATION_TO_NAME["GU"] ]= 162742;
+					region_to_population[STATE_ABBREVIATION_TO_NAME["MP"]] = 53883;
+					region_to_population[STATE_ABBREVIATION_TO_NAME["VI"]] = 31758;
+
+					return region_to_population;
+				}
+				region_to_population = reshape_to_region_to_population(data_population);
+
+				// ---------- ---------- list of regions ordered by the date of first confirmed case ---------- ---------- //
+				let region_to_yyyymmdd_of_1st_confirmed_case = fill_region_to_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmdd_to_count_confirmed);
+
+				// early dates are not in the data
+				// reference: Wikipedia
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["WA"]] = "20200121";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["IL"]] = "20200124";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["AZ"]] = "20200126";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["CA"]] = "20200126";
+
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["MA"]] = "20200201";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["WI"]] = "20200205";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["OR"]] = "20200228";
+
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["FL"]] = "20200301";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["NY"]] = "20200301";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["GA"]] = "20200302";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["NH"]] = "20200302";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["NC"]] = "20200303";
+				region_to_yyyymmdd_of_1st_confirmed_case[STATE_ABBREVIATION_TO_NAME["TX"]] = "20200304";
+
+				let regions_sorted_by_yyyymmdd_of_1st_confirmed_case = fill_regions_sorted_by_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmdd_of_1st_confirmed_case)
+
+				// ---------- ---------- write the intro, analysis, design decisions ---------- ---------- //
+				write_intro(
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					has_confirmed  =region_to_yyyymmdd_to_count_confirmed,
+					has_recoveries =region_to_yyyymmdd_to_count_recoveries,
+					has_deaths     =region_to_yyyymmdd_to_count_deaths,
+					has_population =region_to_population,
+					regions ="states",
+				);
+
+				write_analysis(
+					regions ="states",
+				);
+
+				write_design_decisions(
+					has_population =region_to_population,
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					region  ="state",
+					regions ="states",
+				);
+
+				write_data_source(
+					regions ="states"
+				);
+
+				write_code();
+
+				// ---------- ---------- draw chart ---------- ---------- //
+				let first_yyyymmdd = "20200304"
+				let last_yyyymmdd = d3.max(
+						Object.keys(
+							region_to_yyyymmdd_to_count_tested["Alaska"]  // any state
+						)
+					);
+				let initial_yyyymmdd = last_yyyymmdd;
+				draw_chart(
+					region_to_yyyymmdd_to_count_tested,
+					region_to_yyyymmdd_to_count_confirmed,
+					region_to_yyyymmdd_to_count_recoveries,
+					region_to_yyyymmdd_to_count_deaths,
+					region_to_population,
+					region_to_yyyymmdd_of_1st_confirmed_case,
+					regions_sorted_by_yyyymmdd_of_1st_confirmed_case,
+					first_yyyymmdd,
+					last_yyyymmdd,
+					initial_yyyymmdd,
+				);
+			}
+		)
+	</script>
+</html>
