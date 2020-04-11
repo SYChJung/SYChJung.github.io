@@ -1,3 +1,8 @@
+// ---------- ---------- region ---------- ---------- //
+const COUNTRY = "country";
+const US_STATE = "US_state";
+const GERMAN_STATE = "German_state";
+
 // ---------- ---------- utility functions ---------- ---------- //
 function is_unknown(value){
 	return (value === null)
@@ -120,6 +125,14 @@ function draw_chart(
 	last_yyyymmdd,
 	initial_yyyymmdd,
 ){
+	d3.select("#intro")
+	.append("h2")
+		.attr("id", "date_value");
+
+	d3.select("#intro")
+	.append("p")
+		.html("Use the slider below to see the chart for different dates.");
+
 	// ---------- ---------- dimensions ---------- ---------- //
 	const margin_left   = 7;
 	const margin_right  = 7;
@@ -608,6 +621,7 @@ function write_intro(
 	has_recoveries,
 	has_deaths,
 	has_population,
+	region,
 	regions,
 ){
 	let legend = "";
@@ -632,32 +646,32 @@ function write_intro(
 		.html(legend);
 
 	d3.select("#intro")
-	.append("p")
-		.html("The " + regions + "' circles are ordered by date of their first confirmed case.");
-
-	d3.select("#intro")
-	.append("h2")
-		.attr("id", "date_value");
-
-	d3.select("#intro")
-	.append("p")
-		.html("Use the slider below to see the chart for different dates.");
+	.append("ul")
+		.html("<li>The " + regions + "' circles are ordered by date of their first confirmed case.</li>");
 }
 
-
 function write_analysis(
+	has_tested,
+	has_confirmed,
+	has_recoveries,
+	has_deaths,
+	has_population,
+	region,
 	regions,
 ){
 	d3.select("#write_up")
 	.append("h2")
 		.html("Analysis");
 
-	d3.select("#write_up")
-	.append("p")
-		.html(
-			'Just to state the obvious, <em>the number of confirmed infected cases (the <span class="confirmed">yellow</span> circles) is not the same as the actual number of infected cases</em>. For these numbers to be the same, every potentially sick person needs to seek testing, and everyone who seeks testing needs to be granted a test. This is not the case in many parts of the world, including the U.S.'
-		);
-	if (regions === "states"){
+	if (has_confirmed){
+		d3.select("#write_up")
+		.append("p")
+			.html(
+				'Just to state the obvious, <em>the number of confirmed infected cases (the <span class="confirmed">yellow</span> circles) is not the same as the actual number of infected cases</em>. For these numbers to be the same, every potentially sick person needs to seek testing, and everyone who seeks testing needs to be granted a test. This is not the case in many parts of the world, including the U.S.'
+			);
+	}
+
+	if (has_tested && region === US_STATE){
 		d3.select("#write_up")
 		.append("p")
 			.html(
@@ -665,68 +679,113 @@ function write_analysis(
 			);
 	}
 
-	let analysis = 'Moving the slider from the past to the present, we clearly see the explosion of confirmed cases (<span class="confirmed">yellow</span> circles). ';
-	analysis += (regions === "countries")
-		? 'In the last week of February, starting from around Feb 21, there starts to be some recognition that the virus had spread widely outside of China. '
-		: (regions === "states")
-		? 'Around Mar 15 there starts to be some recognition that the virus had spread widely in the U.S. '
-		: '';
-	analysis += 'From there, the explosive increase of confirmed cases can be attributed'
-		+'<ul>'
-			+'<li>partly to the exponential spread of the virus itself, and</li>'
-			+'<li>partly to belated testing that revealed there were far more undetected cases than previously thought.</li>'
-		+'</ul>';
-	d3.select("#write_up")
-	.append("p")
-		.html(analysis);
+	if (has_confirmed){
+		let analysis = 'Moving the slider from the past to the present, we clearly see the explosion of confirmed cases (<span class="confirmed">yellow</span> circles). ';
 
-	d3.select("#write_up")
-	.append("p")
-		.html(
-			'A higher death rate among the confirmed infected (the <span class="deaths">red</span> circle takes up more of the <span class="confirmed">yellow</span> circle) likely means that'
-			+'<ul>'
-				+'<li>tests to confirm infection are being administered sparingly'
-					+'<br/>(the <span class="confirmed">yellow</span> circle is smaller than it would be if there were high test-seeking and high test availability),</li>'
-				+'<li>by the time infections are confirmed, it is often already too late'
-					+'<br/>(the <span class="confirmed">yellow</span> circle approaches the <span class="deaths">red</span> circle), and/or</li>'
-				+'<li>the health care system is overwhelmed'
-					+'<br/>(the <span class="deaths">red</span> circle is larger than it would be if hospitals were not at full capacity).</li>'
-			+'</ul>'
-		);
+		switch (region) {
+			case COUNTRY:
+				analysis += 'In the last week of February, starting from around Feb 21, there starts to be some recognition that the virus had spread widely outside of China. ';
+				break;
+			case US_STATE:
+				analysis += 'Around Mar 15 there starts to be some recognition that the virus had spread widely in the U.S. ';
+				break;
+			case GERMAN_STATE:
+				// https://www.cnn.com/2020/03/24/opinions/germany-low-death-rate-for-coronavirus-sepkowitz/index.html
+				analysis += 'Despite <a target="_blank" href="https://www.theguardian.com/world/2020/mar/22/germany-low-coronavirus-mortality-rate-puzzles-experts">early and widespread testing</a>, Germany sees an accelerated increase of confirmed cases starting from around Mar 12. ';
+				break;
+			default:
+				break;
+		}
 
-	d3.select("#write_up")
-	.append("p")
-		.html(
-			'There is some uncertainty regarding the death counts (the <span class="deaths">red</span> circles). For example, in the absence of testing, a COVID-19-related pneumonia death <a target="_blank" href="https://www.cnn.com/2020/04/06/health/us-coronavirus-death-count-cdc-explainer/index.html">may only be classified as a pneumonia death</a>.'
-		);
+		switch (region) {
+			case COUNTRY:
+			case US_STATE:
+				analysis += 'From there, the explosive increase of confirmed cases can be attributed'
+					+'<ul>'
+						+'<li>partly to the exponential spread of the virus itself, and</li>'
+						+'<li>partly to belated testing that revealed there were far more undetected cases than previously thought.</li>'
+					+'</ul>';
+				break;
+			case GERMAN_STATE:
+			default:
+				break;
+		}
 
-	analysis = '';
-	if (regions === "states"){
-		analysis += 'For now (Apr 6), it is hard to talk about the mortality rate, as states are still in the process of testing and finding those with the virus. Also, since Mar 27, recovery data (the <span class="recoveries">green</span> circles) have also been added into the dataset for states with major outbreaks.'
-	};
-	if (regions === "countries"){
-		analysis += 'It might be too early to say much about recovery rates. This is just to note that, as of Mar 28, it appears that'
+		d3.select("#write_up")
+		.append("p")
+			.html(analysis);
+	}
+
+	if (has_confirmed && has_deaths){
+		let confirmed_and_deaths = ""
+
+		switch (region) {
+			case COUNTRY:
+			case US_STATE:
+				confirmed_and_deaths += 'A higher death rate among the confirmed infected (the <span class="deaths">red</span> circle takes up more of the <span class="confirmed">yellow</span> circle) likely means that'
 				+'<ul>'
-					+'<li>countries that developed test kits early, such as South Korea and Germany, have recovery numbers that far outstrip the number of deaths'
-						+'<br/>(a thick <span class="recoveries">green</span> ring around the <span class="deaths">red</span> circle),</li>'
-					+'<li>while those that experienced delays in testing have recovery numbers that are comparable to or lagging behind the number of deaths'
-						+'<br/>(a thin <span class="recoveries">green</span> ring around the <span class="deaths">red</span> circle).</li>'
+					+'<li>tests to confirm infection are being administered sparingly'
+						+'<br/>(the <span class="confirmed">yellow</span> circle is smaller than it would be if there were high test-seeking and high test availability),</li>'
+					+'<li>by the time infections are confirmed, it is often already too late'
+						+'<br/>(the <span class="confirmed">yellow</span> circle approaches the <span class="deaths">red</span> circle), and/or</li>'
+					+'<li>the health care system is overwhelmed'
+						+'<br/>(the <span class="deaths">red</span> circle is larger than it would be if hospitals were not at full capacity).</li>'
 				+'</ul>'
-	};
-	d3.select("#write_up")
-	.append("p")
-		.html(analysis);
+		}
 
-	d3.select("#write_up")
-	.append("p")
-		.html(
-			'There is some uncertainty regarding the recovery counts (the <span class="recoveries">green</span> circles) as well, as there is some evidence of <a target="_blank" href="https://www.scmp.com/news/china/society/article/3076989/coronavirus-10pc-recovered-patients-test-positive-later-say">reinfection</a>.'
-		);
+		d3.select("#write_up")
+		.append("p")
+			.html(confirmed_and_deaths)
+	}
+
+	if (has_deaths){
+		d3.select("#write_up")
+		.append("p")
+			.html(
+				'There is some uncertainty regarding the death counts (the <span class="deaths">red</span> circles). For example, in the absence of testing, a COVID-19-related pneumonia death <a target="_blank" href="https://www.cnn.com/2020/04/06/health/us-coronavirus-death-count-cdc-explainer/index.html">may only be classified as a pneumonia death</a>.'
+			);
+	}
+
+	if (has_recoveries && has_deaths){
+		analysis = '';
+		if (region === US_STATE){
+			analysis += 'For now (Apr 6), it is hard to talk about the mortality rate, as states are still in the process of testing and finding those with the virus. Also, since Mar 27, recovery data (the <span class="recoveries">green</span> circles) have also been added into the dataset for states with major outbreaks.'
+		}
+		else if (region === COUNTRY){
+			analysis += 'It might be too early to say much about recovery rates. This is just to note that, as of Mar 28, it appears that'
+					+'<ul>'
+						+'<li>countries that developed test kits early, such as South Korea and Germany, have recovery numbers that far outstrip the number of deaths'
+							+'<br/>(a thick <span class="recoveries">green</span> ring around the <span class="deaths">red</span> circle),</li>'
+						+'<li>while those that experienced delays in testing have recovery numbers that are comparable to or lagging behind the number of deaths'
+							+'<br/>(a thin <span class="recoveries">green</span> ring around the <span class="deaths">red</span> circle).</li>'
+					+'</ul>'
+		}
+		d3.select("#write_up")
+		.append("p")
+			.html(analysis);
+	}
+	else if (has_confirmed && has_deaths){
+		analysis = '';
+		if (region === GERMAN_STATE){
+			analysis += 'For now (Apr 10), it is hard to talk about the mortality rate, as Germany is still in the process of testing and finding those with the virus. However, if we compare Germany with <a target="_blank" href="by_country.html">other European countries</a>, such as France, Italy, and Spain, where the the number of confirmed cases are comparable, the number of deaths is relatively low, which could be sign that Germany is dealing pretty well against the virus.'
+		};	
+		d3.select("#write_up")
+		.append("p")
+			.html(analysis);
+	}
+
+	if (has_recoveries){
+		d3.select("#write_up")
+		.append("p")
+			.html(
+				'There is some uncertainty regarding the recovery counts (the <span class="recoveries">green</span> circles) as well, as there is some evidence of <a target="_blank" href="https://www.scmp.com/news/china/society/article/3076989/coronavirus-10pc-recovered-patients-test-positive-later-say">reinfection</a>.'
+			);
+	};
 }
 
 function write_design_decisions(
-	has_population,
 	has_tested,
+	has_population,
 	region,
 	regions,
 ){
@@ -745,10 +804,12 @@ function write_design_decisions(
 			"(In fact, too much emphasis on geography is dangerous, especially coupled with underreporting: I think early attitudes towards the virus as an epidemic centered only in Asia might have contributed to complacency on the part of Europe and the U.S., and therefore to its spread in those areas, largely undetected and unmitigated until March.)"
 		);
 
-	let breakdown = (region === "country")
-		? "I show data <strong>broken down by "+region+"</strong>, because for the most part, health-care policy and disease response are implemented by "+region+"."
-		: (region === "state")
-		? "I show data <strong>broken down by "+region+"</strong>, because in the initial absence of a strong federal response, health-care policy and disease response were implemented at the "+region+" level."
+	let breakdown = (region === COUNTRY)
+		? "I show data <strong>broken down by country</strong>, because for the most part, health-care policy and disease response are implemented by country."
+		: (region === US_STATE)
+		? "I show data <strong>broken down by state</strong>, because in the initial absence of a strong federal response, health-care policy and disease response were implemented at the state level."
+		: (region === GERMAN_STATE)
+		? 'To be perfectly honest, data <strong>broken down by state</strong> would be more meaningful if Germany\'s health-care response differs widely by state (as in <a target="_blank" href="by_state.html">the U.S.</a>). It does not appear to be the case.'
 		: "";
 	d3.select("#write_up")
 	.append("p")
@@ -797,13 +858,13 @@ function write_design_decisions(
 }
 
 function write_data_source(
-	regions,
+	region,
 ){
 	d3.select("#write_up")
 	.append("h2")
 		.html("Data Source");
 
-	if (regions === "countries"){
+	if (region === COUNTRY){
 		d3.select("#write_up")
 		.append("p")
 			// https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases
@@ -836,18 +897,28 @@ function write_data_source(
 				+ 'I decided not to arbitrarily resolve this, instead presenting the data as is.'
 			);
 	}
-	else if (regions === "states"){
+	else if (region === US_STATE){
 		d3.select("#write_up")
 		.append("p")
 			.html('The data comes from <a target="_blank" href="https://covidtracking.com/api/">The COVID Tracking Project</a>. Its <a target="_blank" href="https://covidtracking.com/data">Most Recent Data</a> page and <a target="_blank" href="https://covidtracking.com/about-data/faq">FAQ</a> page have detailed information about the provenance and quality of the data. <span class="footnote_star">*</span>');
-
 		d3.select("#write_up")
 		.append("p")
 			.html('Population data are from <a target="_blank" href="https://worldpopulationreview.com/states/"> World Population Review</a>.');
-
 		d3.select("#write_up")
 		.append("p")
 			.html('<span class="footnote_star">*</span> The first confirmed case in the U.S. was found on Jan 21, but this dataset starts from Mar 4. Thus I added the dates of the first confirmed cases for the 13 states that already had confirmed cases before Mar 4. These dates are from the <a target="_blank" href="https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_the_United_States">Wikipedia page for the 2020 coronavirus pandemic in the United States<a>.');
+	}
+	else if (region === GERMAN_STATE){
+		d3.select("#write_up")
+		.append("p")
+			// https://github.com/jgehrcke/covid-19-germany-gae
+			.html('The data comes from <a target="_blank" href="https://github.com/jgehrcke/covid-19-germany-gae">https://github.com/jgehrcke/covid-19-germany-gae</a>. I used the confirmed cases dataset based on Robert Koch-Institut data, which claims to be more credible than the others. More detailed information is on the linked github repo.<span class="footnote_star">*</span>');
+		d3.select("#write_up")
+		.append("p")
+			.html('Population data are from <a target="_blank" href="https://en.wikipedia.org/wiki/List_of_German_states_by_population">Wikipedia page for List of German states by population</a>.');
+		d3.select("#write_up")
+		.append("p")
+			.html('<span class="footnote_star">*</span> The first confirmed case in Germany was found on Jan 21, but this dataset starts from Mar 4. Thus I added the dates of the first confirmed cases for the states that already had confirmed cases before Mar 4. These dates are from the <a target="_blank" href="https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_Germany">Wikipedia page for the 2020 coronavirus pandemic in Germany<a>.');
 	}
 };
 
@@ -859,7 +930,7 @@ function write_code(){
 	d3.select("#write_up")
 	.append("p")
 		.html(
-			"I made circle charts displaying data by country and by U.S. state/territory. The formats of the original datasets used in each circle chart are quite different. I converted the datasets into a consistent format so I don't repeat code."
+			"I made circle charts displaying data by country, by U.S. state/territory, and by Germany states. The formats of the original datasets used in each circle chart are quite different. I converted the datasets into a consistent format so I don't repeat code."
 		);
 
 	d3.select("#write_up")

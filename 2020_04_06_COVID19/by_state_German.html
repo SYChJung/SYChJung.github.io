@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>COVID-19 Coronavirus Circle Chart - German States</title>
+		<link rel="stylesheet" href="covid19.css">
+	</head>
+	<body>
+		<h1>COVID-19 Coronavirus Circle Chart - German States</h1>
+		<p style="font-weight: bold;">
+			<a href="by_country.html">BY COUNTRY</a> | <a href="by_state.html">BY U.S. STATE AND TERRITORY</a> | BY GERMAN STATE
+		</p>
+		<section id="intro">
+		</section>
+
+<!-- <p id="date_value"></p> -->
+		<svg id="chart">
+			<g id="circles">
+			</g>
+			<g id="dummies">
+			</g>
+			<g id="slider">
+			</g>
+			<defs>
+				<radialGradient id="population_gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+					<stop offset="0%" style="stop-color: rgb(64, 224, 208); stop-opacity: 0.6" />
+					<stop offset="100%" style="stop-color: rgb(255, 255, 255); stop-opacity: 0" />
+				</radialGradient>
+			</defs>
+		</svg>
+
+		<section id="write_up">
+		</section>
+	</body>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="covid19.js"></script>
+	<script type="text/javascript">
+		d3.queue()
+		.defer(d3.csv, "https://raw.githubusercontent.com/jgehrcke/covid-19-germany-gae/master/cases-rki-by-state.csv")
+		.defer(d3.csv, "https://raw.githubusercontent.com/jgehrcke/covid-19-germany-gae/master/deaths-rki-by-state.csv")
+		.defer(d3.csv, "data_by_state_Germany/population_Germany_states_2018_df.csv")
+		.await(
+			function(error, data_confirmed, data_deaths, data_population) {
+				if (error) throw error;
+
+				// ---------- ---------- clean the datasets ---------- ---------- //
+				const STATE_ABBREVIATION_TO_NAME = {
+					"DE-SH" : "Schleswig-Holstein",
+					"DE-HH" : "Hamburg",
+					"DE-NI" : "Lower Saxony",
+					"DE-HB" : "Bremen",
+					"DE-NW" : "North Rhine-Westphalia",
+					"DE-HE" : "Hesse",
+					"DE-RP" : "Rhineland-Palatinate",
+					"DE-BW" : "Baden-Wuerttemberg", //Baden-Württemberg
+					"DE-BY" : "Bavaria",
+					"DE-SL" : "Saarland",
+					"DE-BB" : "Brandenburg",
+					"DE-MV" : "Mecklenburg-Vorpommern",
+					"DE-SN" : "Saxony",
+					"DE-ST" : "Saxony-Anhalt",
+					"DE-TH" : "Thuringia",
+					"DE-BE" : "Berlin",
+				}
+
+				let region_to_yyyymmdd_to_count_tested;
+				let region_to_yyyymmdd_to_count_confirmed;
+				let region_to_yyyymmdd_to_count_recoveries;
+				let region_to_yyyymmdd_to_count_deaths;
+				let region_to_population;
+
+				let region_to_yyyymmdd_to_count_negative;
+				let region_to_yyyymmdd_to_count_pending;
+
+				function convert_time_iso8601_to_yyyymmdd(time_iso8601){
+					let time_iso8601_list = time_iso8601.split("-");
+					return (
+						time_iso8601_list[0]
+						+ time_iso8601_list[1]
+						+ time_iso8601_list[2][0] + time_iso8601_list[2][1]
+					);
+				}
+
+				function reshape_by_state_and_date(list_of_dicts){
+					let new_list_of_dicts = {}
+					list_of_dicts.map(
+						function(dict){
+							let yyyymmdd = convert_time_iso8601_to_yyyymmdd(dict["time_iso8601"]);
+							delete dict["time_iso8601"]
+							delete dict["sum_deaths"]
+							delete dict["sum_cases"]
+
+							let state_list = Object.keys(dict)
+							for (let state_num in state_list){
+								let state = state_list[state_num]
+								if (new_list_of_dicts[STATE_ABBREVIATION_TO_NAME[state]]){
+									new_list_of_dicts[STATE_ABBREVIATION_TO_NAME[state]][yyyymmdd] = dict[state]
+								}
+								else {
+									new_list_of_dicts[STATE_ABBREVIATION_TO_NAME[state]] = {}
+								}
+
+							}
+						}
+					)
+					return new_list_of_dicts;
+				}
+
+				region_to_yyyymmdd_to_count_confirmed  = reshape_by_state_and_date(data_confirmed);
+				region_to_yyyymmdd_to_count_deaths     = reshape_by_state_and_date(data_deaths);
+
+				function _reshape_to_region_to_population(list_of_dicts){
+					let region_to_population = {};
+
+					list_of_dicts.forEach(
+						function(dict){
+							region_to_population[dict["state"]] = parseInt(dict["population"]);
+						}
+					);
+					return region_to_population;
+				}
+				region_to_population = _reshape_to_region_to_population(data_population);
+				region_to_population["Baden-Wuerttemberg"] = 11069533; // wikipedia
+
+				// ---------- ---------- list of regions ordered by the date of first confirmed case ---------- ---------- //
+				let region_to_yyyymmdd_of_1st_confirmed_case = fill_region_to_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmdd_to_count_confirmed);
+
+				// reference: Wikipedia page for "2020 coronavirus pandemic in Germany"
+				// https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_Germany
+				region_to_yyyymmdd_of_1st_confirmed_case["Schleswig-Holstein"] 		= "20200228";
+				region_to_yyyymmdd_of_1st_confirmed_case["Hamburg"] 				= "20200227";
+				region_to_yyyymmdd_of_1st_confirmed_case["Lower Saxony"] 			= "20200301";
+				region_to_yyyymmdd_of_1st_confirmed_case["Bremen"] 					= "20200301";
+				region_to_yyyymmdd_of_1st_confirmed_case["North Rhine-Westphalia"] 	= "20200225";
+				region_to_yyyymmdd_of_1st_confirmed_case["Hesse"] 					= "20200228";
+				region_to_yyyymmdd_of_1st_confirmed_case["Rhineland-Palatinate"] 	= "20200226";
+				region_to_yyyymmdd_of_1st_confirmed_case["Baden-Wuerttemberg"]		= "20200225";
+				region_to_yyyymmdd_of_1st_confirmed_case["Bavaria"] 				= "20200127";
+				region_to_yyyymmdd_of_1st_confirmed_case["Berlin"] 					= "20200302";
+
+				let regions_sorted_by_yyyymmdd_of_1st_confirmed_case = fill_regions_sorted_by_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmdd_of_1st_confirmed_case)
+
+				// ---------- ---------- write the intro, analysis, design decisions ---------- ---------- //
+				write_intro(
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					has_confirmed  =region_to_yyyymmdd_to_count_confirmed,
+					has_recoveries =region_to_yyyymmdd_to_count_recoveries,
+					has_deaths     =region_to_yyyymmdd_to_count_deaths,
+					has_population =region_to_population,
+					region  =GERMAN_STATE,
+					regions ="states",
+				);
+
+				write_analysis(
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					has_confirmed  =region_to_yyyymmdd_to_count_confirmed,
+					has_recoveries =region_to_yyyymmdd_to_count_recoveries,
+					has_deaths     =region_to_yyyymmdd_to_count_deaths,
+					has_population =region_to_population,
+					region  =GERMAN_STATE,
+					regions ="states",
+				);
+
+				write_design_decisions(
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					has_population =region_to_population,
+					region  =GERMAN_STATE,
+					regions ="states",
+				);
+
+				write_data_source(
+					region ="German_state"
+				);
+
+				write_code();
+				// ---------- ---------- draw chart ---------- ---------- //
+				let first_yyyymmdd = "20200304"
+				let last_yyyymmdd = d3.max(
+						Object.keys(
+							region_to_yyyymmdd_to_count_confirmed["Bavaria"]  // any state
+						)
+					);
+				let initial_yyyymmdd = last_yyyymmdd;
+
+				draw_chart(
+					region_to_yyyymmdd_to_count_tested,
+					region_to_yyyymmdd_to_count_confirmed,
+					region_to_yyyymmdd_to_count_recoveries,
+					region_to_yyyymmdd_to_count_deaths,
+					region_to_population,
+					region_to_yyyymmdd_of_1st_confirmed_case,
+					regions_sorted_by_yyyymmdd_of_1st_confirmed_case,
+					first_yyyymmdd,
+					last_yyyymmdd,
+					initial_yyyymmdd,
+				);
+
+
+
+				// console.log(regions_sorted_by_yyyymmdd_of_1st_confirmed_case)
+				// console.log(region_to_yyyymmdd_to_count_confirmed)
+				// console.log(region_to_yyyymmdd_to_count_deaths)
+				// console.log(region_to_population)
+
+			}
+		)
+	</script>
+</html>

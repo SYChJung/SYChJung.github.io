@@ -7,7 +7,7 @@
 	<body>
 		<h1>COVID-19 Coronavirus Circle Chart</h1>
 		<p style="font-weight: bold;">
-			BY COUNTRY | <a href="by_state.html">BY U.S. STATE AND TERRITORY</a>
+			BY COUNTRY | <a href="by_state.html">BY U.S. STATE AND TERRITORY</a> | <a href="by_state_German.html">BY GERMAN STATE</a>
 		</p>
 
 		<section id="intro">
@@ -88,6 +88,7 @@
 
 					return list_of_dicts;
 				}
+
 				function group_by_and_sum(list_of_dicts){
 					let list_of_key_and_value = d3.nest()
 						.key(d => d["Country/Region"])
@@ -170,22 +171,29 @@
 					has_recoveries =region_to_yyyymmdd_to_count_recoveries,
 					has_deaths     =region_to_yyyymmdd_to_count_deaths,
 					has_population =region_to_population,
+					region  =COUNTRY,
 					regions ="countries",
 				);
 
 				write_analysis(
-					regions ="countries"
+					has_tested     =region_to_yyyymmdd_to_count_tested,
+					has_confirmed  =region_to_yyyymmdd_to_count_confirmed,
+					has_recoveries =region_to_yyyymmdd_to_count_recoveries,
+					has_deaths     =region_to_yyyymmdd_to_count_deaths,
+					has_population =region_to_population,
+					region  =COUNTRY,
+					regions ="countries",
 				);
 
 				write_design_decisions(
-					has_population =region_to_population,
 					has_tested     =region_to_yyyymmdd_to_count_tested,
-					region  ="country",
+					has_population =region_to_population,
+					region  =COUNTRY,
 					regions ="countries",
 				);
 
 				write_data_source(
-					regions ="countries"
+					region ="country"
 				);
 
 				write_code();
