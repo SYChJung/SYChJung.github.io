@@ -84,7 +84,7 @@ function fill_regions_sorted_by_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmd
 
 // ---------- ---------- draw chart ---------- ---------- //
 let POPULATION_DENOMINATOR = 5;
-let COUNT_DENOMINATOR      = 4;
+let COUNT_DENOMINATOR      = 8;
 
 function sqrt_and_scale_as_radius(count, denominator){
 	return Math.sqrt(count) / denominator || 0;  // There's sometimes garbage numbers like -1
@@ -809,7 +809,7 @@ function write_design_decisions(
 		: (region === US_STATE)
 		? "I show data <strong>broken down by state</strong>, because in the initial absence of a strong federal response, health-care policy and disease response were implemented at the state level."
 		: (region === GERMAN_STATE)
-		? 'To be perfectly honest, data <strong>broken down by state</strong> would be more meaningful if Germany\'s health-care response differs widely by state (as in <a target="_blank" href="by_state.html">the U.S.</a>). It does not appear to be the case.'
+		? 'To be perfectly honest, data <strong>broken down by state</strong> would be more meaningful if Germany\'s health-care response differs widely by state (as in <a target="_blank" href="by_state.html">the U.S.</a>). It does not appear to be the case. In fact, this is how the data is expected to look under a coordinated national policy: The states with the earliest cases are hardest hit, while in the rest, the number of cases and the number of deaths are roughly proportional to the population.'
 		: "";
 	d3.select("#write_up")
 	.append("p")
