@@ -84,7 +84,7 @@ function fill_regions_sorted_by_yyyymmdd_of_1st_confirmed_case(region_to_yyyymmd
 
 // ---------- ---------- draw chart ---------- ---------- //
 let POPULATION_DENOMINATOR = 5;
-let COUNT_DENOMINATOR      = 8;
+let COUNT_DENOMINATOR      = 20;
 
 function sqrt_and_scale_as_radius(count, denominator){
 	return Math.sqrt(count) / denominator || 0;  // There's sometimes garbage numbers like -1
