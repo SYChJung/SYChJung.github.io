@@ -35,7 +35,8 @@
 	<script src="covid19.js"></script>
 	<script type="text/javascript">
 		d3.queue()
-		.defer(d3.json, "https://covidtracking.com/api/states/daily")
+		// .defer(d3.json, "https://covidtracking.com/api/states/daily")
+		.defer(d3.json, "data_by_state/daily.json")
 		.defer(d3.csv, "data_by_state/population_US_states_2020_df.csv")
 		.await(
 			function(error, data_by_state, data_population) {
