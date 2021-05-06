@@ -900,7 +900,7 @@ function write_data_source(
 	else if (region === US_STATE){
 		d3.select("#write_up")
 		.append("p")
-			.html('The data comes from <a target="_blank" href="https://covidtracking.com/api/">The COVID Tracking Project</a>. Its <a target="_blank" href="https://covidtracking.com/data">Most Recent Data</a> page and <a target="_blank" href="https://covidtracking.com/about-data/faq">FAQ</a> page have detailed information about the provenance and quality of the data. <span class="footnote_star">*</span>');
+			.html('The data are from <a target="_blank" href="https://covidtracking.com/api/">The COVID Tracking Project</a> collected from Mar 4, 2020 to Mar 7, 2021. The COVID Tracking Project originally updated its data daily, but it ended its data collection as of March 7, 2021 and the existing API will stop working in May 2021. The COVID Tracking Project&rsquo;s <a target="_blank" href="https://covidtracking.com/data">Most Recent Data (from March 7, 2021)</a> page and <a target="_blank" href="https://covidtracking.com/about-data/faq">FAQ</a> page have detailed information about the provenance and quality of the data. <span class="footnote_star">*</span>');
 		d3.select("#write_up")
 		.append("p")
 			.html('Population data are from <a target="_blank" href="https://worldpopulationreview.com/states/"> World Population Review</a>.');
