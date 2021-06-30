@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>electricity_generation_US</title>
+		<link rel="stylesheet" href="electricity_generation_US.css">
+	</head>
+	<body>
+		<h1>Electricity generation in US</h1>
+		<section id="write_intro">
+			<ul>
+				<li>You can move the slider to see the charts for different years.</li>
+				<li><span class="coal">Brown</span> represents electricity generation by <span class="coal">coal</span>.</li>
+				<li><span class="natural_gas">Green</span> represents electricity generation by<span class="natural_gas"> natural gas</span>.</li>
+				<li><span class="nuclear">Yellow</span> represents electricity generation by<span class="nuclear"> nuclear</span>.</li>
+				<li><span class="oil">Black</span> represents electricity generation by<span class="oil"> oil</span>.</li>
+				<li><span class="renewables">Blue</span> represents electricity generation by<span class="renewables"> renewables</span>.</li>
+				<br>
+			</ul>
+		</section>
+		<section id="write_summary">
+		</section>
+		<svg id="chart">
+			<g id="slider">
+			</g>
+			<g id="chart">
+			</g>
+		</svg>
+
+		<section id="write_analysis">
+			<ul>
+				<h2>Analysis</h2>
+				<p>As we can see from the size of the donut chart increasing, the <span class="total">total</span> U.S. electricity generation gradually grew over the years.</p>
+				<p>We can see that <span class="coal">coal</span> covered a big part of U.S. electricity generation. Electricity generation by <span class="coal">coal</span> gradually grew in size and ratio and reached its peak in 2007. However, this started to rapidly decrease afterward, and the contribution of <span class="coal">coal</span> diminished to a comparable level to <span class="nuclear"> nuclear </span> and <span class="renewables"> renewables </span>in 2020.</p>
+				<p>Electricity generation by <span class="natural_gas">natural gas</span> slowly grew until 1985. After 1985, its size and ratio rapidly increased, which managed to cover <span class="coal">coal</span>'s decreased role since 2007 and insured the continous growth of <span class="total">total</span> U.S. electricity generation. In 2020, <span class="natural_gas">natural gas</span> became the biggest contributer in both size and ratio.</p>
+				<p>There was no electricity generation by <span class="nuclear">nuclear power</span> before 1960. Since 1960, its electricity generation gradually increased in size and ratio. In 2020, <span class="nuclear">nuclear power</span> had a comparable level of contribution in size and ratio with <span class="coal">coal</span> and <span class="renewables"> renewables </span>.</p>
+				<p>The contribution of <span class="oil">oil</span> in U.S. electricity generation reached its peak in 1978, but after that it decreased in both size and ratio. <span class="oil">Oil</span> was the lowest electricity generation contributer in most of the time, and it remained like that since 1980.</p>
+				<p>The size of electricity generation by <span class="renewables"> renewables </span> gradually increased since 1950. Its ratio, on the other hand, slowly decreased until 2007. Only in 2020, it recovered its contribution ratio.</p>
+			</ul>
+		</section>
+		<section id="write_design_decisions">
+			<ul>
+				<h2>Design Decisions</h2>
+				<p>I used three charts for this data visualization: the donut chart which represents the ratio through its arcs and absolute size of production by its area, the bar chart which provides the side by side comparison of the ratios, and the line chart which shows an overview of absolute size of the electricity generation in the U.S. from 1950 to 2020.</p>
+				<p>For this data visualization, I concentrated on the animation aspect, and that is why I added the slider. You see the contents in the summary and charts changing as the you move the slider. With this, you see how the values changed overtime.</p>
+				<p>The donut chart on the upper left represents the ratio and size of electricity generation by each energy source. The energy sources are in clockwise order according to their size. For example, in 1950, <span class="coal">coal</span>, <span class="renewables">renewables</span>, <span class="natural_gas">natural gas</span>, and <span class="oil">oil</span> are in clockwise order. (There was no <span class="nuclear">nuclear</span> electricity generation at that time.) You can also see the size of the donut chart grows as you move the slider as<span class="total">total</span> electricity generation grows.</p>
+				<p>The bar chart on the upper right represents the energy ratios of the selected year. The ratio shown in the donut chart might be hard for the human eye to compare, so I made the bar chart. You see the heights of the bars change as you move the slider.</p>
+				<p>The line chart on the bottom shows the overall change of electricity generation of each energy source from 1950 to 2020. I made this chart, so people can see the electricity generation growth at one glance. You see the <span class="vertical_line">vertical red line</span> which moves as you move the slider to select a year.</p>
+			</ul>
+		</section>
+		<section id="write_data_source">
+			<ul>
+				<h2>Data Source</h2>
+				<p>The data came from <a target="_blank" href="https://www.eia.gov/energyexplained/electricity/electricity-in-the-us-generation-capacity-and-sales.php">Electricity explained: Electricity generation, capacity, and sales in the United States</a> which is an article in <a target="_blank" href="https://www.eia.gov/">eia (U.S. Energy Information Administration)</a>. The article shows U.S. electricity generation by major energy source from 1950 to 2020 with an area chart. I thought it would be useful to show the exact values as well as ratios.</p>
+			</ul>
+		</section>
+		<section id="write_code">
+			<ul>
+				<h2>Code</h2>
+				<p>I used jupyter notebook to trim the dataset and added the ratio values of each energy source by year.</p>
+				<p>Next, I used D3 to make these three charts.</p>
+				<p>The donut chart was based on <a target="_blank" href="https://www.tutorialsteacher.com/d3js/create-pie-chart-using-d3js">https://www.tutorialsteacher.com/d3js/create-pie-chart-using-d3js</a>.</p>
+				<p>The bar chart was based on <a target="_blank" href="https://www.tutorialsteacher.com/d3js/create-bar-chart-using-d3js">https://www.tutorialsteacher.com/d3js/create-bar-chart-using-d3js</a>.</p>
+				<p>The line chart was based on <a target="_blank" href="https://www.d3-graph-gallery.com/graph/line_several_group.html">https://www.d3-graph-gallery.com/graph/line_several_group.html</a>.</p>
+				<p>The slider was based on <a target="_blank" href="https://github.com/arbelzinger/d3_v4_slider">https://github.com/arbelzinger/d3_v4_slider</a> and on <a target="_blank" href="https://github.com/MasterMaps/d3-slider">https://github.com/MasterMaps/d3-slider</a>.</p>
+			</ul>
+		</section>
+	</body>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script type="text/javascript">
+		d3.queue()
+		.defer(d3.csv, "electricity_generation_US.csv")
+		.await(
+			function(error, electricity_generation) {
+				if (error) throw error;
+
+				d3.select("#intro")
+				.append("h2")
+					.attr("id", "date_value");
+
+				const margin_left   = 7;
+				const margin_top    = 21;
+
+
+				// Largest total value
+				const max_total = d3.max(electricity_generation, d => d.total );
+
+				const svg_width = 1200
+				const svg_height = max_total;
+
+				// Year
+				const first = 0 // year 1950
+				const last = electricity_generation.length-1 // year 2020
+
+				// - - - svg - - - //
+				const svg_chart = d3.select("#chart")
+					.attr("width", svg_width)
+					.attr("height", svg_height);
+
+
+
+
+				// - - - Energy Color - - - //
+				const COAL_COLOR = "#654321" // Dark Brown
+				const NATURAL_GAS_COLOR = "#006400" // DarkGreen
+				const NUCLEAR_COLOR = "#F6BE00" // Dark Yellow
+				const OIL_COLOR = "#000000" // Black
+				const RENEWABLES_COLOR = "#00bfff" // Deep sky blue
+
+
+
+
+				// - - - Write Summary - - - //
+				function _write_summary(data_num){
+					data_source = electricity_generation[data_num]
+
+					d3.selectAll("ul.energy_summary").remove();
+
+					let legend_summary = ""
+					legend_summary += '<h2>Summary: In ' + data_source["year"] + ',</h2>';
+					legend_summary += '<li><span class="total">Total</span> electricity generation is <span class="total">' + data_source["total"] + '</span> billion kWh.</li>';
+					legend_summary += '<li>Electricity generation from <span class="coal">coal</span> is <span class="coal">' + data_source["coal"] + '</span> billion kWh, which is <span class="coal">' + data_source["ratio_caol"] + '</span> % of the total.</li>';
+					legend_summary += '<li>Electricity generation from <span class="natural_gas">natural gas</span> is <span class="natural_gas">' + data_source["natural gas"] + '</span> billion kWh, which is <span class="natural_gas">' + data_source["ratio_natural_gas"] + '</span> % of the total.</li>';
+					legend_summary += '<li>Electricity generation from <span class="nuclear">nuclear</span> is <span class="nuclear">' + data_source["nuclear"] + '</span> billion kWh, which is <span class="nuclear">' + data_source["ratio_nuclear"] + '</span> % of the total.</li>';
+					legend_summary += '<li>Electricity generation from <span class="oil">oil</span> is <span class="oil">' + data_source["oil"] + '</span> billion kWh, which is <span class="oil">' + data_source["ratio_oil"] + '</span> % of the total.</li>';
+					legend_summary += '<li>Electricity generation from <span class="renewables">renewables</span> is <span class="renewables">' + data_source["renewables"] + '</span> billion kWh, which is <span class="renewables">' + data_source["ratio_renewables"] + '</span> % of the total.</li>';
+
+					d3.select("#write_summary")
+						.append("ul")
+							.attr("class", "energy_summary")
+							.html(legend_summary);
+				}
+
+				const write_summary = _write_summary(first)
+
+
+
+
+				// - - - Draw Donut Chart - - - //
+		        const donut = d3.pie().value(function(d) { 
+		                return d.energy_generation; 
+		            });
+
+				const g_donut = d3.select("#chart").append("g")
+						.attr("transform", "translate(" + svg_width/4 + "," + svg_height/4 + ")");
+
+				let energy_color_donut
+
+				function _draw_donut(data_num){
+					data_source = electricity_generation[data_num]
+
+					let data_donut
+					if (data_source["nuclear"] != 0){
+						data_donut = [
+							{energy_source: "coal", energy_generation: data_source["coal"]},
+							{energy_source: "natural gas", energy_generation: data_source["natural gas"]},
+							{energy_source: "nuclear", energy_generation: data_source["nuclear"]},
+							{energy_source: "oil", energy_generation: data_source["oil"]},
+							{energy_source: "renewables", energy_generation: data_source["renewables"]}
+						]
+
+						energy_color_donut = d3.scaleOrdinal([COAL_COLOR, NATURAL_GAS_COLOR, NUCLEAR_COLOR, OIL_COLOR, RENEWABLES_COLOR]);
+					}
+					else {
+						data_donut = [
+							{energy_source: "coal", energy_generation: data_source["coal"]},
+							{energy_source: "natural gas", energy_generation: data_source["natural gas"]},
+							{energy_source: "oil", energy_generation: data_source["oil"]},
+							{energy_source: "renewables", energy_generation: data_source["renewables"]}
+						]
+
+						energy_color_donut = d3.scaleOrdinal([COAL_COLOR, NATURAL_GAS_COLOR, OIL_COLOR, RENEWABLES_COLOR]);
+					}
+
+					const data_total = data_source["total"]
+					const radius_donut = Math.sqrt(data_total/Math.PI)*3
+
+					g_donut.selectAll("text.donut_chart_title").remove();
+					g_donut.selectAll("g.arc").remove();
+
+					g_donut.append("text")
+						.attr("class", "donut_chart_title")
+						// .attr("transform", "translate(0,0)")
+						.attr("x", radius_donut)
+						.attr("y", radius_donut)
+						// .attr("font-size", "15px")
+						// .attr("font-weight", "bold")
+						.text("Electricity generation")
+					g_donut.append("text")
+						.attr("class", "donut_chart_title")
+						// .attr("transform", "translate(0,0)")
+						.attr("x", radius_donut)
+						.attr("y", 17+radius_donut)
+						// .attr("font-size", "15px")
+						// .attr("font-weight", "bold")
+						.text("comparison in " + (data_num+1950) )
+
+					const arc_donut = d3.arc()
+						.innerRadius(radius_donut - 25)
+						.outerRadius(radius_donut);
+
+					const path_donut = g_donut.selectAll("g.arc")
+						.data(donut(data_donut))
+						.enter()
+						.append("g")
+						.attr("class", "arc")
+
+					path_donut.append("path")
+						.attr("fill", function(d, i) {
+							return energy_color_donut(i);
+						})
+						.attr("d", arc_donut)
+
+			        const label = d3.arc()
+						.outerRadius(radius_donut)
+						.innerRadius(radius_donut + 80);
+
+		            path_donut.append("text")
+						.attr("transform", function(d) { 
+						        return "translate(" + label.centroid(d) + ")"; 
+						})
+						.text(function(d) { return d.data.energy_source; })
+						.attr("fill", function(d, i) {
+							return energy_color_donut(i);
+						})
+
+					return path_donut
+				}
+
+				let draw_donut = _draw_donut(first)
+
+
+
+
+				// - - - Draw Bar Chart - - - //
+				bar_chart_width = svg_width/4
+				const xScale_bar = d3.scaleBand().range ([0, bar_chart_width]).padding(0.4)
+        		const yScale_bar = d3.scaleLinear().range ([svg_height/4, 0]);
+
+				const data_bar_axis = [
+					{energy_source: "coal", energy_generation_ratio: 0},
+					{energy_source: "natural gas", energy_generation_ratio: 0},
+					{energy_source: "nuclear", energy_generation_ratio: 0},
+					{energy_source: "oil", energy_generation_ratio: 0},
+					{energy_source: "renewables", energy_generation_ratio: 0}
+				]
+
+		        xScale_bar.domain(data_bar_axis.map(function(d) { return d.energy_source; }));
+		        yScale_bar.domain([0, 70]);
+
+			    const g_bar = d3.select("#chart")
+			    	.append("g")
+					.attr("transform", "translate(" + svg_width*(5/8) + "," + svg_height*(1/8) + ")")
+
+				const bar_axisBottom = g_bar.append("g")
+					.attr("class", "axis_bar")
+					.attr("transform", "translate(" + 0 + "," + svg_height/4 + ")")
+					.call(d3.axisBottom(xScale_bar))
+
+				bar_axisBottom
+					.selectAll("text")
+					.attr("transform", "rotate(30)")
+					.style("text-anchor", "start")
+
+				const bar_axisLeft = g_bar.append("g")
+					.attr("class", "axis_bar")
+					.call(d3.axisLeft(yScale_bar)
+					.tickFormat(function(d){
+						return d;
+					})
+					.ticks(10))
+
+				bar_axisLeft
+					.append("text")
+					.attr("class", "bar_axis_label")
+					.attr("y", -50)
+					.attr("x", -svg_height/8+50)
+					// .attr("text-anchor", "end")
+					.attr("transform", "rotate(-90)")
+					.text("Ratio(%)")
+					// .attr("fill", "black")
+					// .style("font-family", "verdana")
+					// .style("font-size", "15px");
+
+				const energy_color_bar = d3.scaleOrdinal([COAL_COLOR, NATURAL_GAS_COLOR, NUCLEAR_COLOR, OIL_COLOR, RENEWABLES_COLOR]);
+
+				function _draw_bar(data_num){
+					data_source = electricity_generation[data_num]
+
+					const data_bar = [
+						{energy_source: "coal", energy_generation_ratio: data_source["ratio_caol"]},
+						{energy_source: "natural gas", energy_generation_ratio: data_source["ratio_natural_gas"]},
+						{energy_source: "nuclear", energy_generation_ratio: data_source["ratio_nuclear"]},
+						{energy_source: "oil", energy_generation_ratio: data_source["ratio_oil"]},
+						{energy_source: "renewables", energy_generation_ratio: data_source["ratio_renewables"]}
+					]
+
+					g_bar.selectAll("text.bar_chart_title").remove();
+					g_bar.selectAll("rect.rect").remove();
+
+					g_bar.append("text")
+						.attr("class", "bar_chart_title")
+						// .attr("transform", "translate(0,0)")
+						.attr("x", 10)
+						.attr("y", -20)
+						// .attr("font-size", "15px")
+						// .attr("font-weight", "bold")
+						.text("Ratio of electricity generation in " + (data_num+1950) )
+
+					g_bar.selectAll(".bar")
+						.data(data_bar)
+						.enter()
+						.append("rect")
+						.attr("class", "rect")
+						.attr("x", function(d) { return xScale_bar(d.energy_source); })
+						.attr("y", function(d) { return yScale_bar(d.energy_generation_ratio); })
+						.attr("width", xScale_bar.bandwidth())
+						.attr("height", function(d) { return svg_height/4 - yScale_bar(d.energy_generation_ratio); })
+						.attr("fill", function(d, i) {
+							return energy_color_bar(i);
+						})
+
+					return g_bar
+				}
+
+				const draw_bar = _draw_bar(first)
+
+
+
+
+				// - - - Draw Line Chart - - - //
+				const xScale_line = d3.scaleLinear().range ([0, svg_width-200])
+        		const yScale_line = d3.scaleLinear().range ([svg_height/2, 0]);
+
+		        xScale_line.domain([first+1950, last+1950]);
+		        yScale_line.domain([0, 2000]);
+
+			    const g_line = d3.select("#chart")
+			    	.append("g")
+					.attr("transform", "translate(" + 100 + "," + svg_height*(7/16) + ")")
+
+				g_line.append("text")
+					.attr("class", "line_chart_title")
+					// .attr("transform", "translate(0,0)")
+					.attr("x", 100)
+					.attr("y", 20)
+					// .attr("font-size", "15px")
+					// .attr("font-weight", "bold")
+					.text("Electricity Generation in U.S. from 1950 to 2020")
+
+				const line_axisBottom = g_line.append("g")
+					.attr("class", "axis_line")
+					.attr("transform", "translate(" + 0 + "," + svg_height/2 + ")")
+					.call(d3.axisBottom(xScale_line)
+							.tickFormat(d3.format("d"))
+						)
+
+				line_axisBottom
+					.append("text")
+					.attr("class", "line_axis_label")
+					.attr("y", 50)
+					.attr("x", svg_width/2)
+					// .attr("text-anchor", "end")
+					.text("Year")
+					// .attr("fill", "black")
+					// .style("font-family", "verdana")
+					// .style("font-size", "18px");
+
+				const line_axisLeft = g_line.append("g")
+					.attr("class", "axis_line")
+					.call(d3.axisLeft(yScale_line)
+					.tickFormat(function(d){
+						return d;
+					}))
+
+				line_axisLeft
+					.append("text")
+					.attr("class", "line_axis_label")
+					.attr("y", -70)
+					.attr("x", 0)
+					// .attr("text-anchor", "end")
+					.attr("transform", "rotate(-90)")
+					.text("Electricity Generation (bWh)")
+					// .attr("fill", "black")
+					// .style("font-family", "verdana")
+					// .style("font-size", "16px");
+
+				function _draw_line(ratio, color){
+					g_line.append("path")
+						.attr("class", "line_path")
+						.datum(electricity_generation)
+						// .attr("fill", "none")
+						.attr("stroke", color)
+						// .attr("stroke-width", 3.5)
+						.attr("d", d3.line()
+						.x(function(d) { return xScale_line(d["year"]) })
+						.y(function(d) { return yScale_line(d[ratio]) })
+						)
+
+					return g_line
+				}
+
+				const draw_line_coal = _draw_line("coal", COAL_COLOR)
+				const draw_line_natural_gas = _draw_line("natural gas", NATURAL_GAS_COLOR)
+				const draw_line_nuclear = _draw_line("nuclear", NUCLEAR_COLOR)
+				const draw_line_oil = _draw_line("oil", OIL_COLOR)
+				const draw_line_renewables = _draw_line("renewables", RENEWABLES_COLOR)
+
+				// - - - Vertical line in line chart
+				function _draw_vertical_line(data_num){
+					g_line.selectAll("line.vertical").remove();
+
+					g_line.append('line')
+						.attr("class", "vertical")
+					    // .style("stroke", "#ff3333")
+					    // .style("stroke-width", 2)
+					    .attr("x1", xScale_line(data_num+1950))
+					    .attr("y1", 0)
+					    .attr("x2", xScale_line(data_num+1950))
+					    .attr("y2", svg_height/2)
+
+					return g_line
+				}
+
+				const draw_vertical_line = _draw_vertical_line(first)
+
+
+
+
+				// - - - Slider - - - //
+				const slider_width = svg_width-100;
+				const slider_height = 60;
+
+				const g_slider = d3.select("#slider")
+					.attr("transform", `translate(${margin_left}, ${margin_top})`);
+
+				const minValue = first;
+				const maxValue = last;
+				const initialValue = minValue;
+
+				const color = "#ff3333";
+				const emptyColor = "#808080"; // dark gray
+				const thumbColor = "white";
+
+				const lineWidth = 6;
+				const thumbSize = 6;
+
+				let value;
+				let valueNormalized = (initialValue-minValue)/(maxValue-minValue);
+				let valueScaled = valueNormalized * slider_width;
+				let stepSize = 1
+				let stepSizeScaled = stepSize / (maxValue-minValue) * slider_width;
+
+				function format_unix_timestamp(unix_timestamp){
+					return new Date(unix_timestamp)
+						.toLocaleDateString(
+							"en-US",
+							{ year: 'numeric'},
+						);
+				}
+
+				let valueLine = g_slider.append("line")
+					.attr("x1", 0)
+					.attr("x2", slider_width * valueNormalized)
+					.attr("y1", margin_top)
+					.attr("y2", margin_top)
+					.style("stroke", color)
+					.style("stroke-linecap", "round")
+					.style("stroke-width", lineWidth);
+
+				let emptyLine = g_slider.append("line")
+					.attr("x1", slider_width * valueNormalized)
+					.attr("x2", slider_width)
+					.attr("y1", margin_top)
+					.attr("y2", margin_top)
+					.style("stroke", emptyColor)
+					.style("stroke-linecap", "round")
+					.style("stroke-width", lineWidth);
+
+				const num_of_years = Math.ceil((maxValue - minValue)/stepSize) + 1;
+				const ticks = g_slider
+				.selectAll("circle").data(new Array(num_of_years)).enter().append("circle")
+					.attr("fill", "white")
+					.attr("r", 1.5)
+					.attr("cx", (d, i) => i * stepSizeScaled)
+					.attr("cy", margin_top);
+
+				let valueCircle = g_slider.append("circle")
+					.attr("cx", slider_width * valueNormalized)
+					.attr("cy", margin_top)
+					.attr("r", thumbSize)
+					.style("stroke", "black")
+					.style("stroke-width", 1)
+					.style("fill", thumbColor)
+					.call(d3.drag().on("drag", dragEnded));
+
+				function dragEnded() {	
+					valueScaled = d3.event.x;
+
+					let floored = Math.floor(valueScaled / stepSizeScaled) * stepSizeScaled;
+					let remainder = valueScaled % stepSizeScaled;
+					if(remainder){
+						if(remainder < stepSizeScaled / 2){
+							valueScaled = floored;
+						}
+						else{
+							valueScaled = floored + stepSizeScaled;
+						}
+					}
+
+					if (valueScaled < 0)
+						valueScaled = 0;
+					else if (valueScaled > slider_width)
+						valueScaled = slider_width;
+
+					valueNormalized = valueScaled / slider_width;
+					value = Math.floor(valueNormalized*(maxValue-minValue)+minValue);
+					valueCircle.attr("cx", valueScaled);
+					valueLine.attr("x2", slider_width * valueNormalized);
+					emptyLine.attr("x1", slider_width * valueNormalized);
+
+					d3.event.sourceEvent.stopPropagation();
+
+					let write_summary = _write_summary(value)
+					let draw_donut = _draw_donut(value)
+					let draw_bar = _draw_bar(value)
+					let draw_vertical_line = _draw_vertical_line(value)
+				}
+
+				// - - - end of the code - - - //
+			}
+		);
+	</script>
+</html>
