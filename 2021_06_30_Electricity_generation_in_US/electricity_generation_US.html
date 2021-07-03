@@ -43,7 +43,7 @@
 				<p>I used three charts for this data visualization: the donut chart which represents the ratio through its arcs and absolute size of production by its area, the bar chart which provides the side by side comparison of the ratios, and the line chart which shows an overview of absolute size of the electricity generation in the U.S. from 1950 to 2020.</p>
 				<p>For this data visualization, I concentrated on the animation aspect, and that is why I added the slider. You see the contents in the summary and charts changing as the you move the slider. With this, you see how the values changed overtime.</p>
 				<p>The donut chart on the upper left represents the ratio and size of electricity generation by each energy source. The energy sources are in clockwise order according to their size. For example, in 1950, <span class="coal">coal</span>, <span class="renewables">renewables</span>, <span class="natural_gas">natural gas</span>, and <span class="oil">oil</span> are in clockwise order. (There was no <span class="nuclear">nuclear</span> electricity generation at that time.) You can also see the size of the donut chart grows as you move the slider as<span class="total">total</span> electricity generation grows.</p>
-				<p>The bar chart on the upper right represents the energy ratios of the selected year. The ratio shown in the donut chart might be hard for the human eye to compare, so I made the bar chart. You see the heights of the bars change as you move the slider.</p>
+				<p>The bar chart on the upper right represents the energy ratios of the selected year. The ratio shown in the donut chart might be hard for the human eye to compare, so I made the bar chart. You see the heights of the bars change as you move the slider. The thickness in the donut chart is same as the widths in the bar chart, so that the bars are effectively the arcs of the pie chart stretched out.</p>
 				<p>The line chart on the bottom shows the overall change of electricity generation of each energy source from 1950 to 2020. I made this chart, so people can see the electricity generation growth at one glance. You see the <span class="vertical_line">vertical red line</span> which moves as you move the slider to select a year.</p>
 			</ul>
 		</section>
@@ -62,6 +62,7 @@
 				<p>The bar chart was based on <a target="_blank" href="https://www.tutorialsteacher.com/d3js/create-bar-chart-using-d3js">https://www.tutorialsteacher.com/d3js/create-bar-chart-using-d3js</a>.</p>
 				<p>The line chart was based on <a target="_blank" href="https://www.d3-graph-gallery.com/graph/line_several_group.html">https://www.d3-graph-gallery.com/graph/line_several_group.html</a>.</p>
 				<p>The slider was based on <a target="_blank" href="https://github.com/arbelzinger/d3_v4_slider">https://github.com/arbelzinger/d3_v4_slider</a> and on <a target="_blank" href="https://github.com/MasterMaps/d3-slider">https://github.com/MasterMaps/d3-slider</a>.</p>
+				<p>The grid was based on <a target="_blank" href="https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218">https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218</a>.</p>
 			</ul>
 		</section>
 	</body>
@@ -135,6 +136,20 @@
 
 
 
+				// - - - Draw Grid - - - //
+				function _draw_x_gridlines(x, tick_num) {		
+				    return d3.axisBottom(x)
+				        .ticks(tick_num)
+				}
+
+				function _draw_y_gridlines(y, tick_num) {		
+				    return d3.axisLeft(y)
+				        .ticks(tick_num)
+				}
+
+
+
+
 				// - - - Draw Donut Chart - - - //
 		        const donut = d3.pie().value(function(d) { 
 		                return d.energy_generation; 
@@ -144,6 +159,8 @@
 						.attr("transform", "translate(" + svg_width/4 + "," + svg_height/4 + ")");
 
 				let energy_color_donut
+
+				const donut_thickness = 50
 
 				function _draw_donut(data_num){
 					data_source = electricity_generation[data_num]
@@ -179,19 +196,13 @@
 
 					g_donut.append("text")
 						.attr("class", "donut_chart_title")
-						// .attr("transform", "translate(0,0)")
 						.attr("x", radius_donut)
 						.attr("y", radius_donut)
-						// .attr("font-size", "15px")
-						// .attr("font-weight", "bold")
 						.text("Electricity generation")
 					g_donut.append("text")
 						.attr("class", "donut_chart_title")
-						// .attr("transform", "translate(0,0)")
 						.attr("x", radius_donut)
 						.attr("y", 17+radius_donut)
-						// .attr("font-size", "15px")
-						// .attr("font-weight", "bold")
 						.text("comparison in " + (data_num+1950) )
 
 					const arc_donut = d3.arc()
@@ -212,7 +223,7 @@
 
 			        const label = d3.arc()
 						.outerRadius(radius_donut)
-						.innerRadius(radius_donut + 80);
+						.innerRadius(radius_donut + donut_thickness*2);
 
 		            path_donut.append("text")
 						.attr("transform", function(d) { 
@@ -233,8 +244,10 @@
 
 				// - - - Draw Bar Chart - - - //
 				bar_chart_width = svg_width/4
+				bar_chart_height = svg_height/4
 				const xScale_bar = d3.scaleBand().range ([0, bar_chart_width]).padding(0.4)
-        		const yScale_bar = d3.scaleLinear().range ([svg_height/4, 0]);
+        		const yScale_bar = d3.scaleLinear().range ([bar_chart_height, 0]);
+        		const yScale_bar_axis = d3.scaleLinear().range ([bar_chart_height, 0]);
 
 				const data_bar_axis = [
 					{energy_source: "coal", energy_generation_ratio: 0},
@@ -246,6 +259,7 @@
 
 		        xScale_bar.domain(data_bar_axis.map(function(d) { return d.energy_source; }));
 		        yScale_bar.domain([0, 70]);
+		        yScale_bar_axis.domain([5, 75]);
 
 			    const g_bar = d3.select("#chart")
 			    	.append("g")
@@ -253,7 +267,7 @@
 
 				const bar_axisBottom = g_bar.append("g")
 					.attr("class", "axis_bar")
-					.attr("transform", "translate(" + 0 + "," + svg_height/4 + ")")
+					.attr("transform", "translate(" + 0 + "," + bar_chart_height + ")")
 					.call(d3.axisBottom(xScale_bar))
 
 				bar_axisBottom
@@ -264,22 +278,33 @@
 				const bar_axisLeft = g_bar.append("g")
 					.attr("class", "axis_bar")
 					.call(d3.axisLeft(yScale_bar)
-					.tickFormat(function(d){
-						return d;
-					})
-					.ticks(10))
+						.tickFormat(function(d){
+							return d;
+						})
+						.ticks(5)
+					)
 
 				bar_axisLeft
 					.append("text")
 					.attr("class", "bar_axis_label")
 					.attr("y", -50)
 					.attr("x", -svg_height/8+50)
-					// .attr("text-anchor", "end")
 					.attr("transform", "rotate(-90)")
 					.text("Ratio(%)")
-					// .attr("fill", "black")
-					// .style("font-family", "verdana")
-					// .style("font-size", "15px");
+
+				g_bar.append("g")			
+					.attr("class", "grid")
+					.call(_draw_y_gridlines(yScale_bar, 5)
+						.tickSize(-bar_chart_width)
+						.tickFormat("")
+					)
+				g_bar.append("g")			
+					.attr("class", "grid")
+					.call(_draw_y_gridlines(yScale_bar_axis, 5)
+						.tickSize(-bar_chart_width)
+						.tickFormat("")
+					)
+					.style("stroke-dasharray", ("3, 3"))
 
 				const energy_color_bar = d3.scaleOrdinal([COAL_COLOR, NATURAL_GAS_COLOR, NUCLEAR_COLOR, OIL_COLOR, RENEWABLES_COLOR]);
 
@@ -299,11 +324,8 @@
 
 					g_bar.append("text")
 						.attr("class", "bar_chart_title")
-						// .attr("transform", "translate(0,0)")
 						.attr("x", 10)
 						.attr("y", -20)
-						// .attr("font-size", "15px")
-						// .attr("font-weight", "bold")
 						.text("Ratio of electricity generation in " + (data_num+1950) )
 
 					g_bar.selectAll(".bar")
@@ -311,10 +333,10 @@
 						.enter()
 						.append("rect")
 						.attr("class", "rect")
-						.attr("x", function(d) { return xScale_bar(d.energy_source); })
+						.attr("x", function(d) { return xScale_bar(d.energy_source)+4; })
 						.attr("y", function(d) { return yScale_bar(d.energy_generation_ratio); })
-						.attr("width", xScale_bar.bandwidth())
-						.attr("height", function(d) { return svg_height/4 - yScale_bar(d.energy_generation_ratio); })
+						.attr("width", donut_thickness/2)
+						.attr("height", function(d) { return bar_chart_height - yScale_bar(d.energy_generation_ratio); })
 						.attr("fill", function(d, i) {
 							return energy_color_bar(i);
 						})
@@ -328,11 +350,15 @@
 
 
 				// - - - Draw Line Chart - - - //
-				const xScale_line = d3.scaleLinear().range ([0, svg_width-200])
-        		const yScale_line = d3.scaleLinear().range ([svg_height/2, 0]);
+				line_chart_width = svg_width-200
+				line_chart_height = svg_height/2
+				const xScale_line = d3.scaleLinear().range ([0, line_chart_width])
+        		const yScale_line = d3.scaleLinear().range ([line_chart_height, 0]);
+        		const yScale_line_axis = d3.scaleLinear().range ([line_chart_height, 0]);
 
 		        xScale_line.domain([first+1950, last+1950]);
 		        yScale_line.domain([0, 2000]);
+		        yScale_line_axis.domain([100, 2100]);
 
 			    const g_line = d3.select("#chart")
 			    	.append("g")
@@ -340,16 +366,13 @@
 
 				g_line.append("text")
 					.attr("class", "line_chart_title")
-					// .attr("transform", "translate(0,0)")
 					.attr("x", 100)
 					.attr("y", 20)
-					// .attr("font-size", "15px")
-					// .attr("font-weight", "bold")
 					.text("Electricity Generation in U.S. from 1950 to 2020")
 
 				const line_axisBottom = g_line.append("g")
 					.attr("class", "axis_line")
-					.attr("transform", "translate(" + 0 + "," + svg_height/2 + ")")
+					.attr("transform", "translate(" + 0 + "," + line_chart_height + ")")
 					.call(d3.axisBottom(xScale_line)
 							.tickFormat(d3.format("d"))
 						)
@@ -359,11 +382,15 @@
 					.attr("class", "line_axis_label")
 					.attr("y", 50)
 					.attr("x", svg_width/2)
-					// .attr("text-anchor", "end")
 					.text("Year")
-					// .attr("fill", "black")
-					// .style("font-family", "verdana")
-					// .style("font-size", "18px");
+
+				g_line.append("g")			
+					.attr("class", "grid")
+					.attr("transform", "translate(0," + line_chart_height + ")")
+					.call(_draw_x_gridlines(xScale_line, 10)
+						.tickSize(-line_chart_height)
+						.tickFormat("")
+					)
 
 				const line_axisLeft = g_line.append("g")
 					.attr("class", "axis_line")
@@ -377,20 +404,28 @@
 					.attr("class", "line_axis_label")
 					.attr("y", -70)
 					.attr("x", 0)
-					// .attr("text-anchor", "end")
 					.attr("transform", "rotate(-90)")
 					.text("Electricity Generation (bWh)")
-					// .attr("fill", "black")
-					// .style("font-family", "verdana")
-					// .style("font-size", "16px");
+
+				g_line.append("g")			
+					.attr("class", "grid")
+					.call(_draw_y_gridlines(yScale_line, 10)
+						.tickSize(-line_chart_width)
+						.tickFormat("")
+					)
+				g_line.append("g")			
+					.attr("class", "grid")
+					.call(_draw_y_gridlines(yScale_line_axis, 10)
+						.tickSize(-line_chart_width)
+						.tickFormat("")
+					)
+					.style("stroke-dasharray", ("3, 3"))
 
 				function _draw_line(ratio, color){
 					g_line.append("path")
 						.attr("class", "line_path")
 						.datum(electricity_generation)
-						// .attr("fill", "none")
 						.attr("stroke", color)
-						// .attr("stroke-width", 3.5)
 						.attr("d", d3.line()
 						.x(function(d) { return xScale_line(d["year"]) })
 						.y(function(d) { return yScale_line(d[ratio]) })
@@ -405,18 +440,16 @@
 				const draw_line_oil = _draw_line("oil", OIL_COLOR)
 				const draw_line_renewables = _draw_line("renewables", RENEWABLES_COLOR)
 
-				// - - - Vertical line in line chart
+				// Vertical line in line chart //
 				function _draw_vertical_line(data_num){
 					g_line.selectAll("line.vertical").remove();
 
 					g_line.append('line')
 						.attr("class", "vertical")
-					    // .style("stroke", "#ff3333")
-					    // .style("stroke-width", 2)
 					    .attr("x1", xScale_line(data_num+1950))
 					    .attr("y1", 0)
 					    .attr("x2", xScale_line(data_num+1950))
-					    .attr("y2", svg_height/2)
+					    .attr("y2", line_chart_height)
 
 					return g_line
 				}
