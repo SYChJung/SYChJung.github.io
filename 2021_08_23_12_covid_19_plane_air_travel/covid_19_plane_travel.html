@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>covid_19_plane_travel</title>
+		<link rel="stylesheet" href="covid_19_plane_travel.css">
+	</head>
+	<body>
+		<h1>Covid 19 affect on Plane travel</h1>
+		<section id="write_intro">
+		</section>
+<!-- 			<button onclick="update('var1')">Passengers</button>
+			<button onclick="update('var2')">Flights</button> -->
+		<select id="selectButton1"></select>
+		<select id="selectButton2"></select>
+		<div id="chart_tooltip">
+			<svg id="chart">
+<!-- 				<g id="dummies">
+				</g> -->
+				<g id="chart">
+				</g>
+			</svg>
+			<div id="chart_tooltip">
+			</div>
+		</div>
+		<section id="write_analysis">
+			<ul>
+				<h2>Outline</h2>
+				This is a draft of my data visualization about covid19's affect on U.S. air travel. Further development and analysis will be updated.
+
+				<!-- Hoever your mouse over the chart.
+				Then you can see the 
+
+
+				The first graph is about the change in total passengers numbers.
+				If you want to see about other data you can select
+
+
+				button options
+
+				passengers
+				flights				
+				Load Factor: passenger-miles as a proportion of available seat-miles in percent -->
+			</ul>
+			<ul>
+				<h2>Analysis</h2>
+
+				<!-- We can see that 
+				seasonal same
+				gradually growing by each year
+
+
+				https://github.com/SYChJung/SYChJung.github.io/blob/master/2020_04_06_COVID19/by_country.html
+
+				D3 line chart seasonal
+
+				D3.js change chart on button click
+
+				
+
+				covid timeline
+				https://www.who.int/news/item/27-04-2020-who-timeline---covid-19 -->
+			</ul>
+		</section>
+		<section id="write_design_decisions">
+			<ul>
+				<h2>Design Decisions</h2>
+<!-- 				<p>Instead of making a big chart with one line, I made multiple lines by year. I designed like this because the amount of air travels change by season. With this, compare the seasonal changes between the years before and after COVID-19.</p>
+
+				<p>I placed several buttons representing passengers, flights and (more). The readers can click the button and the corresponding line charts will show up.</p>
+
+				<p>I add a tooltip function so readers can hover thier cursor on the line and further information will show up. (by seasonal, vertical tooltip)</p>
+
+				<p>jupyter notebook, filter</p>
+				<p>circle, dots</p> -->
+			</ul>
+		</section>
+		<section id="write_data_source">
+			<ul>
+				<h2>Data Source</h2>
+				<p>The data came from <a target="_blank" href="https://www.bts.gov/">Bureau of Transportation Statistics(BTS)</a> from <a target="_blank" href="https://www.transportation.gov/">United States Department of Transportation</a>. BTS collects, stores, and organizes data related to transportations in the U.S.</p>
+
+				<p>. Among them I collected the air transportation data in 2015~2019 and 2020, 2021.</p>
+
+				<li>The passengers, flights travel data came from <a target="_blank" href="https://www.transtats.bts.gov/Data_Elements.aspx?Data=1">Passengers, All Carriers - All Airports</a>.</li>
+			</ul>
+		</section>
+		<section id="write_code">
+			<ul>
+				<h2>Code</h2>
+				<li>The line chart was based on <a target="_blank" href="https://www.d3-graph-gallery.com/graph/line_several_group.html">https://www.d3-graph-gallery.com/graph/line_several_group.html</a>.</li>
+
+				<li>The tooltip was based on <a target="_blank" href="https://bl.ocks.org/dianaow/0da76b59a7dffe24abcfa55d5b9e163e">https://bl.ocks.org/dianaow/0da76b59a7dffe24abcfa55d5b9e163e</a>.</li>
+
+				<li>The buttons was based on <a target="_blank" href="https://www.d3-graph-gallery.com/graph/barplot_button_data_csv.html">https://www.d3-graph-gallery.com/graph/barplot_button_data_csv.html</a> and <a target="_blank" href="https://www.d3-graph-gallery.com/graph/line_filter.html">https://www.d3-graph-gallery.com/graph/line_filter.html</a>.</li>
+
+				<li>I reorganized the dataset with python and jupyter notebook.</li>
+			</ul>
+		</section>
+	</body>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script type="text/javascript">
+		d3.queue()
+		.defer(d3.csv, "All_Carriers.csv")
+		// .defer(d3.csv, "Passengers.csv")
+		// .defer(d3.csv, "Flights.csv")
+		.await(
+			// function(error, all_carriers_data, passenger_data, flight_data) {
+			function(error, all_carriers_data) {
+				if (error) throw error;
+
+				const margin_left = 7;
+				const margin_top  = 21;
+
+				const svg_width  = 1200;
+				const svg_height = 600;
+
+				const svg_chart = d3.select("#chart")
+					.attr("width", svg_width)
+					.attr("height", svg_height);
+
+
+
+				// - - - Year Color - - - //
+				const COLOR_2011 = "#DADAEBFF"
+				const COLOR_2012 = "#DADAEBFF"//
+				const COLOR_2013 = "#9C9EDEFF"
+				const COLOR_2014 = "#9C9EDEFF"//
+				const COLOR_2015 = "#6B6ECFFF"
+				const COLOR_2016 = "#6B6ECFFF" //
+				const COLOR_2017 = "#5254A3FF"
+				const COLOR_2018 = "#5254A3FF"//
+				const COLOR_2019 = "#393B79FF"
+				const COLOR_2020 = "#7B4173FF"
+				const COLOR_2021 = "#843C39FF"
+
+				var category = [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021]
+				var COLOR_YEAR = d3.scaleOrdinal()
+					.domain(category)
+					.range([COLOR_2011, COLOR_2012, COLOR_2013, COLOR_2014, COLOR_2015, COLOR_2016, COLOR_2017, COLOR_2018, COLOR_2019, COLOR_2020, COLOR_2021])
+
+				//  - - - Select Button - - - //
+				var all_category = d3.map(all_carriers_data, function(d){return(d.Category)}).keys()
+				// console.log(all_category)
+
+				d3.select("#selectButton1")
+				  .selectAll('myOptions')
+					.data(all_category)
+				  .enter()
+					.append('option')
+				  .text(function (d) { return d; })
+				  .attr("value", function (d) { return d; })
+
+				var all_values = ["TOTAL", "DOMESTIC", "INTERNATIONAL"]
+
+				d3.select("#selectButton2")
+				  .selectAll('myOptions')
+					.data(all_values)
+				  .enter()
+					.append('option')
+				  .text(function (d) { return d; })
+				  .attr("value", function (d) { return d; })
+
+
+
+				// - - - Draw Grid - - - //
+				// function _draw_x_gridlines(x, tick_num) {		
+				//     return d3.axisBottom(x)
+				//         .ticks(tick_num)
+				// }
+
+				function _draw_y_gridlines(y, tick_num) {		
+				    return d3.axisLeft(y)
+				        .ticks(tick_num)
+				}
+
+
+
+				// - - - Draw Line Chart - - - //
+
+		        // g for line chart
+			    const g_line = d3.select("#chart")
+			    	.append("g")
+					.attr("transform", "translate(" + 100 + "," + svg_height*(2/16) + ")")
+
+				line_chart_width = svg_width-200
+				line_chart_height = svg_height-200
+				const xScale_line = d3.scaleLinear().range ([0, line_chart_width])
+        		const yScale_line = d3.scaleLinear().range ([line_chart_height, 0]);
+        		const yScale_line_axis = d3.scaleLinear().range ([line_chart_height, 0]);
+
+		        xScale_line.domain([1, 12]);
+
+				// line chart title
+				g_line.append("text")
+					.attr("class", "line_chart_title")
+					.attr("x", 100)
+					.attr("y", -20)
+					.text("covid_19_plane_travel in U.S. from 2015 to 2021")
+
+				// axis, bottom
+				const line_axisBottom = g_line.append("g")
+					.attr("class", "axis_line")
+					.attr("transform", "translate(" + 0 + "," + line_chart_height + ")")
+					.call(d3.axisBottom(xScale_line)
+							.tickFormat(d3.format("d"))
+						)
+
+				// label, bottom
+				line_axisBottom
+					.append("text")
+					.attr("class", "line_axis_label")
+					.attr("y", 50)
+					.attr("x", svg_width/2)
+					.text("Month")
+
+				// grid, vertical
+				// g_line.append("g")			
+				// 	.attr("class", "grid")
+				// 	.attr("transform", "translate(0," + line_chart_height + ")")
+				// 	.call(_draw_x_gridlines(xScale_line, 10)
+				// 		.tickSize(-line_chart_height)
+				// 		.tickFormat("")
+				// 	)
+				// grid, horizontal
+				g_line.append("g")			
+					.attr("class", "grid")
+					.call(_draw_y_gridlines(yScale_line, 10)
+						.tickSize(-line_chart_width)
+						.tickFormat("")
+					)
+				g_line.append("g")			
+					.attr("class", "grid")
+					.call(_draw_y_gridlines(yScale_line_axis, 10)
+						.tickSize(-line_chart_width)
+						.tickFormat("")
+					)
+					.style("stroke-dasharray", ("3, 3"))
+
+				// console.log(all_carriers_data)
+
+				function _draw_line(dataset, year, color, selected_value){
+					var filter_dataset = dataset.filter(function(d){return d.Year == year})
+
+					g_line.append("path")
+						.attr("class", "line_path")
+						.datum(filter_dataset)
+							.attr("stroke", color)
+							.attr("d", d3.line()
+							.x(function(d) { return xScale_line(d["Month"]) })
+							.y(function(d) { return yScale_line(d[selected_value]) })
+							)
+
+					g_line.append("text")
+						.attr("class", "year")
+						.data(filter_dataset)
+							.attr("x", xScale_line(filter_dataset[filter_dataset.length-1]["Month"]) + 10)
+							.attr("y", yScale_line(filter_dataset[filter_dataset.length-1][selected_value]) + 5)
+							.text(year)
+							.style("fill", color)
+							.style("font-size", 13);
+
+					return g_line
+				}
+
+				function _update_selected(selected_cateory, selected_value) {
+					// console.log(selected_cateory, selected_value)
+					var selected_data = all_carriers_data.filter(function(d){return d.Category==selected_cateory})
+					// max of Total
+					// console.log(selected_data)
+					var max_value = d3.max(selected_data, d => +d["TOTAL"] );
+					// var max_value = d3.max(selected_data, function(d) { return d["TOTAL"]; } );
+					var min_value = d3.min(selected_data, d => +d["TOTAL"] );
+					// console.log(d3.max(selected_data, d => d["TOTAL"] ))
+
+			        yScale_line.domain([0, max_value]);
+			        yScale_line_axis.domain([100, max_value+100]);
+
+					// axis, left
+					g_line.selectAll("g.axis_line_left").remove();
+					var line_axisLeft = g_line.append("g")
+						.attr("class", "axis_line_left")
+						.call(d3.axisLeft(yScale_line)
+						.tickFormat(function(d){
+							if (min_value > 1000000){
+								return d/1000000 + "Mill."
+							} else if (min_value > 1000) {
+								return d/1000 + "THS"
+							} else {
+								return d + "%"
+							};
+						}))
+
+					// label, left
+					line_axisLeft
+						.append("text")
+						.attr("class", "line_axis_label")
+						.attr("y", -70)
+						.attr("x", 0)
+						.attr("transform", "rotate(-90)")
+						.text(selected_cateory + " " + selected_value)
+
+					g_line.selectAll("path").remove();
+					g_line.selectAll("text.year").remove();
+					var draw_line_2011 = _draw_line(selected_data, 2011, COLOR_2011, selected_value)
+					var draw_line_2012 = _draw_line(selected_data, 2012, COLOR_2012, selected_value)
+					var draw_line_2013 = _draw_line(selected_data, 2013, COLOR_2013, selected_value)
+					var draw_line_2014 = _draw_line(selected_data, 2014, COLOR_2014, selected_value)
+					var draw_line_2015 = _draw_line(selected_data, 2015, COLOR_2015, selected_value)
+					var draw_line_2016 = _draw_line(selected_data, 2016, COLOR_2016, selected_value)
+					var draw_line_2017 = _draw_line(selected_data, 2017, COLOR_2017, selected_value)
+					var draw_line_2018 = _draw_line(selected_data, 2018, COLOR_2018, selected_value)
+					var draw_line_2019 = _draw_line(selected_data, 2019, COLOR_2019, selected_value)
+					var draw_line_2020 = _draw_line(selected_data, 2020, COLOR_2020, selected_value)
+					var draw_line_2021 = _draw_line(selected_data, 2021, COLOR_2021, selected_value)
+
+					// TODO: change name "res_nested", realted to selected_data
+					var res_nested = d3.nest() // necessary to nest data so that keys represent each vehicle category
+						.key(d => d.Year)
+						.entries(selected_data)
+					// console.log(res_nested)
+
+					// tooltip
+					d3.select("#chart_tooltip").selectAll("div").remove();
+					var tooltip_div = d3.select("#chart_tooltip").append("div")
+					// var tooltip_div = d3.select("#chart").append("div")
+						.attr('id', 'tooltip')
+						// .attr('class', 'tooltip_div')
+						.style('position', 'absolute')
+						.style("background-color", "#001")
+						.style("color", "white")
+						.style('padding', 10)
+						// .style('border-radius', 10)
+						.style('display', 'none')
+					// var tooltip_div = d3.select("body").append("div")
+					// 	.classed("tooltip", true)
+					// 	.style("opacity", 0);
+
+					// vertical line
+					g_line.selectAll('.mouse-over-effects').remove();
+					var vertical_line = g_line
+					// var vertical_line = svg_chart
+						.append("g")
+						.attr("class", "mouse-over-effects");
+					vertical_line.append("path")
+						.attr("class", "mouse-line")
+						.style("stroke", "#A9A9A9")
+						.style("stroke-width", 2)
+						.style("opacity", "0");
+
+					var lines = document.getElementsByClassName('line_path');
+
+					var mouseover_line = vertical_line.selectAll('.mouse-per-line')
+						.data(res_nested)
+						.enter()
+						.append("g")
+						.attr("class", "mouse-per-line");
+
+					// mouseover_line.selectAll("circle.month").remove();
+					mouseover_line.append("circle")
+						.attr("class", "month")
+						.attr("r", 4)
+						.style("stroke", function (d) {
+							return COLOR_YEAR(d.key)
+						})
+						.style("fill", "none")
+						.style("stroke-width", 2)
+						.style("opacity", "0");
+
+					vertical_line.append('svg:rect') // append a rect to catch mouse movements on canvas
+						.attr('width', svg_width) 
+						.attr('height', svg_height)
+						.attr('fill', 'none')
+						.attr('pointer-events', 'all')
+						.on('mouseout', function () { // on mouse out hide line, circles and text
+							d3.select(".mouse-line")
+								.style("opacity", "0");
+							d3.selectAll(".mouse-per-line circle")
+								.style("opacity", "0");
+							d3.selectAll(".mouse-per-line text")
+								.style("opacity", "0");
+							d3.selectAll("#tooltip")
+								.style('display', 'none')
+						})
+						.on('mouseover', function () { // on mouse in show line, circles and text
+							d3.select(".mouse-line")
+								.style("opacity", "1");
+							d3.selectAll(".mouse-per-line circle")
+								.style("opacity", "1");
+							d3.selectAll("#tooltip")
+								.style('display', 'block')
+						})
+						.on('mousemove', function () { // update tooltip content, line, circles and text when mouse moves
+							var mouse = d3.mouse(this)
+
+							// TODO: change the name "xDate"
+							var xDate = Number((xScale_line.invert(mouse[0])).toFixed(0))
+							if (xDate > 12){
+								xDate = 12
+							} else if (xDate < 1) {
+								xDate = 1;
+							};
+
+							// console.log(res_nested.length)
+
+							d3.selectAll(".mouse-per-line")
+								.attr("transform", function (d, i) {
+									// var xDate = parseInt(xScale_line.invert(mouse[0])) // use 'invert' to get date corresponding to distance from mouse position relative to svg
+									// var xDate = Number((xScale_line.invert(mouse[0])).toFixed(0))
+									// if (xDate > 12){
+									// 	xDate = 12
+									// } else if (xDate < 1) {
+									// 	xDate = 1;
+									// };
+
+									// var bisect = d3.bisector(function (d) { return d.Month; }).left // retrieve row index of date on parsed csv
+									// console.log(bisect)
+									// var index = bisect(d.Month, xDate);
+									var filtered_by_month = d.values.filter(function(d){return d.Month == xDate})[0];
+									// console.log(filtered_by_month)
+									if (filtered_by_month == undefined){
+										filtered_by_month = {
+											"Month" : -10,
+											"DOMESTIC": -1000000000,
+											"INTERNATIONAL": -1000000000,
+											"TOTAL": -1000000000,
+											// "Month" : 0,
+											// selected_value: 0
+										}
+									}
+									// console.log(filtered_by_month)
+
+									// d3.select(".mouse-line")
+									// 	.attr("d", function () {
+								 //  			var data = "M" + xScale_line(d.values[index].date) + "," + (height);
+								 //  			data += " " + xScale_line(d.values[index].date) + "," + 0;
+								 //  			return data;
+									// 	});
+									// return "translate(" + xScale_line(d.values[index].date) + "," + yScale(d.values[index].selected_value) + ")";
+									// return "translate(" + xDate + "," + svg_height/2 + ")";
+									d3.select(".mouse-line")
+										.attr("d", function () {
+								  			var data = "M" + xScale_line(xDate) + "," + (line_chart_height);
+								  			data += " " + xScale_line(xDate) + "," + 0;
+								  			return data;
+										});
+									return "translate(" + xScale_line(xDate) + "," + yScale_line(filtered_by_month[selected_value]) + ")";
+								});
+
+							// TODO: change the name: "updateTooltipContent"
+							updateTooltipContent(mouse, res_nested, xDate, selected_cateory, selected_value, tooltip_div)
+						})
+				}
+
+				function updateTooltipContent(mouse, res_nested, xDate, selected_cateory, selected_value, tooltip_div) {
+					tooltip_list = []
+					res_nested.map(d => {
+						var filtered_by_month = d.values.filter(function(d){return d.Month == xDate})[0];
+						if (filtered_by_month == undefined){
+							filtered_by_month = {
+								"Year": 2021,
+								"Month" : xDate,
+								"DOMESTIC": undefined,
+								"INTERNATIONAL": undefined,
+								"TOTAL": undefined,
+							}
+						}
+						// var bisect = d3.bisector(function (d) { return d.Month; }).left
+						// var idx = bisect(d.values, xDate)
+						// tooltip_list.push(
+						// 	{key: d.values[idx].vehicle_class,
+						// 	premium: d.values[idx].premium,
+						// 	bidding_no: d.values[idx].bidding_no,
+						// 	year: d.values[idx].date.getFullYear(),
+						// 	month: monthNames[d.values[idx].date.getMonth()]})
+						tooltip_list.push(filtered_by_month)
+					})
+
+					// tooltip_list.sort(function(x, y){
+					// 	return d3.descending(x.premium, y.premium);
+					// })
+
+					// var sortingArr = tooltip_list.map(d=> d.key)
+
+					// var res_nested1 = res_nested.slice().sort(function(a, b){
+					// 	return sortingArr.indexOf(a.key) - sortingArr.indexOf(b.key) // rank vehicle category based on price of premium
+					// })
+
+					
+					// console.log(d3.event.pageY)
+					tooltip_div.html(tooltip_list[0].Month + "-" + tooltip_list[0].Year
+						+ selected_cateory + ". " + selected_value)
+					// tooltip_div.html(tooltip_list[0].Month)
+						.style('display', 'block')
+						.style("left", (d3.event.pageX)+20 + "px")
+						.style("top", (d3.event.pageY)-20 + "px")
+						// .attr("transform", "translate(" + d3.event.pageX + "," + d3.event.pageY + ")")
+						.style('font-size', 8)
+						.selectAll()
+						// .data(res_nested).enter() // for each vehicle category, list out name and price of premium
+						.data(tooltip_list).enter()
+						.append('div')
+						.style('color', d => {
+							return COLOR_YEAR(d.Year)
+				  		})
+						.style('font-size', 8)
+						.html(d => {
+							// var bisect = d3.bisector(function (d) { return d.date; }).left
+							// var idx = bisect(d.values, xDate)
+							// return d.key.substring(0, 3) + " " + d.key.slice(-1) + ": $" + d.values[idx].premium.toString()
+							// console.log(d)
+							if (d[selected_value] == undefined) {
+								// console.log(d.Year + ", " + d.Month + ": N/A")
+								return d.Year + ", " + d.Month + ": N/A"
+							} else {
+								// console.log(d.Year + ", " + d.Month + ": " + d[selected_value])
+								return d.Year + ", " + d.Month + ": " + d[selected_value]
+							}
+						})
+				}
+
+
+        		travel_cateory = all_category[0]
+				travel_value = all_values[0]
+
+				_update_selected(travel_cateory, travel_value)
+
+			    d3.select("#selectButton1").on("change", function(d) {
+			        var selectedOption = d3.select(this).property("value")
+			        travel_cateory = selectedOption
+			        _update_selected(travel_cateory, all_values[0])
+			    })
+
+			    d3.select("#selectButton2").on("change", function(d) {
+			        var selectedOption = d3.select(this).property("value")
+			        travel_value = selectedOption
+			        _update_selected(travel_cateory, travel_value)
+			    })
+
+			}
+		);
+	</script>
+</html>

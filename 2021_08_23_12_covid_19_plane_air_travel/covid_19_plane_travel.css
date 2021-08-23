@@ -1,0 +1,142 @@
+body{
+	margin: 30px;
+	font-family: verdana;
+	font-size: 17px;
+}
+
+/* Line Chart */
+g.axis_line {
+	font-size: 14px;
+}
+text.line_axis_label{
+	font-weight: bold;
+	font-family: verdana;
+	font-size: 15px;
+	text-anchor: end;
+	fill: black;
+}
+text.line_axis_label_left{
+	font-weight: bold;
+	font-family: verdana;
+	font-size: 15px;
+	text-anchor: end;
+	fill: black;
+}
+text.line_chart_title{
+	font-weight: bold;
+	font-family: verdana;
+	font-size: 17px;
+	fill: black;
+}
+path.line_path{
+	stroke-width: 2.5;
+	fill: none;
+	opacity: 0.8;
+}
+
+
+
+
+
+span.tooltip_label{
+	color: gray;
+	font-weight: bold;
+}
+
+div.tooltip {
+	-webkit-transition: fill .2s; /* Safari */
+			transition: fill .2s;
+	position: absolute;
+	/*width: 250px;*/
+	/*height: 20px;*/
+	padding: 10px;
+	border: 0px;
+	border-radius: 10px;
+	text-align: left;
+	font: 8px sans-serif;
+	/*background: lightsteelblue;*/
+	background: #001;
+	color: white;
+	opacity: 0;
+	pointer-events: none;
+}
+div.tooltip.selected{
+	-webkit-transition: fill .5s; /* Safari */
+			transition: fill .5s;
+	opacity: 0.8;
+}
+
+
+
+
+/*- - - - - */
+
+/* Grid */
+.grid {
+  stroke: black;
+  stroke-opacity: 0.5;
+  shape-rendering: crispEdges;
+}
+
+
+/* Donut Chart */
+.arc text {
+    font-size: 20px sans-serif;
+    text-anchor: middle;
+}
+.arc path {
+    stroke: #fff;
+}
+text.donut_chart_title {
+	font-weight: bold;
+	font-size: 17px;
+}
+
+
+/* Bar Chart */
+g.axis_bar {
+	font-size: 18px;
+}
+
+text.bar_axis_label{
+	font-family: verdana;
+	font-size: 20px;
+	text-anchor: end;
+	fill: black;
+}
+text.bar_chart_title{
+	font-weight: bold;
+	font-family: verdana;
+	font-size: 17px;
+	fill: black;
+}
+
+/* Summary */
+span.total{
+	font-weight: bold;
+	color: #AAA;/*TOTAL_COLOR*/
+}
+span.coal{
+	font-weight: bold;
+	color: #654321;/*COAL_COLOR*/
+}
+span.natural_gas{
+	font-weight: bold;
+	color: #006400;/*NATURAL_GAS_COLOR*/
+}
+span.nuclear{
+	font-weight: bold;
+	color: #F6BE00;/*NUCLEAR_COLOR*/
+}
+span.oil{
+	font-weight: bold;
+	color: #000000;/*OIL_COLOR*/
+}
+span.renewables{
+	font-weight: bold;
+	color: #00bfff;/*RENEWABLES_COLOR*/
+}
+span.vertical_line{
+	font-weight: bold;
+	color: #ff3333;/*VERTICAL_RED_LINE_COLOR*/
+}
